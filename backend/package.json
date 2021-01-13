@@ -1,0 +1,21 @@
+{
+  "name": "job_portal_backend",
+  "version": "1.0.0",
+  "description": "Backend for Job application portal - MERN webapp",
+  "main": "server.js",
+  "author": "Ahana",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "^5.0.0",
+    "concurrently": "^5.3.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.11.11",
+    "mongoose-type-email": "^1.1.2"
+  },
+  "repository": "https://github.com/adata111/job-apllication-portal.git",
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}
