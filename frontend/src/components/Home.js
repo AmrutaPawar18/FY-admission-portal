@@ -82,7 +82,9 @@ export default class Home extends Component {
         e.preventDefault();
         axios.post('http://localhost:5000/user/login', {email:this.state.email, password:this.state.pwd})
              .then(res => {alert("Welcome\t" + res.data.name);
-                console.log(res)})
+                console.log(res);
+                this.props.history.push('/path');
+              })
              .catch(err => {
                 console.log(err)
              })
@@ -127,6 +129,8 @@ render() {
             type="password"
             id="password"
             autoComplete="current-password"
+            value={this.state.pwd}
+            onChange={this.onChangePwd}
           />
           <Button
             type="submit"
