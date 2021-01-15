@@ -14,6 +14,9 @@ app.use(express.json());
 const db = require('./config/keys').mongoURI;
 
 const users = require("./routes/Users");
+const recruiters = require("./routes/createJob");
+//const applicants = require("./routes/Applicants");
+//const recruiters = require("./routes/Recruiters");
 //connecting to db
 mongoose
     .connect(db, { 
@@ -28,9 +31,12 @@ connection.once('open', function() {
 
 //Use routes
 app.use("/user",users);
+//app.use("/$app", applicants);
+app.use("/recr", recruiters);
     
     const port = process.env.PORT || 5000;
 
-    app.listen(port, () => console.log(`Server started on port ${port}`));   //we want our app to listen for requests on the specified port
+    app.listen(port, () => console.log(`Server started on port ${port}`));   
+    //we want our app to listen for requests on the specified port
     // the function is callback, it logs when it begins listening
 

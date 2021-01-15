@@ -12,11 +12,14 @@ import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
+import Chip from '@material-ui/core/Chip';
 import Box from '@material-ui/core/Box';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+
+import {InputTag} from './Tag.js';
 
 
 ///styles
@@ -24,7 +27,6 @@ const classes = {
   paper: {
     marginTop: 10,
       justifyContent: 'center',
-      height: '70vh',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -50,50 +52,74 @@ export default class Home extends Component {
         super(props);
         this.state = {
             title:'',
-            maxAppl:0,
-            maxPos:0,
-            date:'',
-            time:'',
+            maxAppl:50,
+            maxPos:5,
+            date:"",
+            time:"00:00",
             duration:0,
             type:'',
             salary:0,
             skills: '',
             email: '',
+            chips: [],
+            authorized:true
         }
-        this.onChangeUsername = this.onChangeUsername.bind(this);
-        this.onChangePwd = this.onChangePwd.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
-        this.onChangeFname = this.onChangeFname.bind(this);
-        this.onChangeLname = this.onChangeLname.bind(this);
-        this.onChangeEmail = this.onChangeEmail.bind(this);
+        this.onIntInputChange = this.onIntInputChange.bind(this);
+        this.onInputChange = this.onInputChange.bind(this);
+        this.handleDelete = this.handleDelete.bind(this);
+        this.addSkill = this.addSkill.bind(this);
     }
 
     componentDidMount() {
+      var x = localStorage.getItem('role');
+      console.log(x);
+      if(x){
+        if(x==='Recruiter'){}
+        else{
+          this.setState({authorized:false})
+        }
+      }
 
     }
 
-    onChangeUsername(event) {
-        this.setState({ name: event.target.value });
-    }
-    onChangeFname(event) {
-        this.setState({ fname: event.target.value });
-    }
-    onChangeLname(event) {
-        this.setState({ lname: event.target.value });
-    }
-    onChangeEmail(event) {
-        this.setState({ email: event.target.value });
+    handleDelete(chip){
+      console.log(chip.target);
+      var chips = this.state.chips.filter((data)=> data===chip);
+      console.log(chips);
+      this.setState(chips)
     }
 
-    onChangePwd(event) {
-        this.setState({ pwd: event.target.value });
+    addSkill(e){
+      if (!(e.key === 'Enter')) return;
+      var arr = this.state.chips;
+      var val = e.target.value;
+      var i = arr.findIndex((ele) => ele.key === val.toLowerCase());
+      if(i !== -1){ 
+        this.setState({skills:''});
+        return;
+      }
+      arr.push({key: val.toLowerCase(), label:e.target.value});
+    //  console.log(arr);
+      this.setState({chips: arr, skills:''});
+
+    }
+
+    
+    onInputChange(event) {
+        this.setState({ [event.target.name]: event.target.value });
+    }
+
+    onIntInputChange(e) {
+        this.setState({ [e.target.name] : parseInt(e.target.value)||0})
     }
 
     onSubmit(e) {
         e.preventDefault();
+        var arr = this.state.chips.map((it)=> (it.label))
+      //  console.log(this.state.chips);
         const newJob = {
             
-            email: this.state.email,
             title: this.state.title,
             maxPos: this.state.maxPos,
             maxAppl: this.state.maxAppl,
@@ -101,15 +127,47 @@ export default class Home extends Component {
             duration: this.state.duration,
             type: this.state.type,
             salary: this.state.salary,
-            skills: this.state.skills,
+            skills: arr,
 
         }
-        console.log(newJob);
+        // console.log(newJob);
+        // console.log(!this.state.title );
+        // console.log(!(this.state.date===''));
+        // console.log(!(this.state.time===""))
+        // console.log(!(this.state.type));
+        // console.log(!(this.state.chips===[]));
+        if(!this.state.title || (this.state.date==='') || (this.state.time==="") 
+          || !this.state.type || (this.state.chips===[])){
+          alert("Please fill all neccessary fields");
+          return;
+        }
+        if(this.state.maxPos<=0){
+          alert("Maximum Positions should be greater than zero");
+          return;
+        }
+        if(this.state.maxAppl<=0){
+          alert("Maximum Applications should be greater than zero");
+          return;
+        }
+        
 
-        axios.post('http://localhost:5000/user/recr/newJob', newJob)
+        var token = localStorage.getItem('token');
+
+        // Headers
+        var config = {
+          headers: {
+            'Content-type': 'application/json'
+          }
+        }
+
+        // If token, add to headers
+        if (token) {
+          config.headers['auth-tok'] = token;
+        }
+
+        axios.post('http://localhost:5000/recr/newJob', newJob, config)
              .then(res => {
-                alert("Created job\t" + res.data.title);
-                console.log(res);
+               alert("Created job\t" + res.data.job.title);
                 this.setState({
                   title:'',
                   maxAppl:0,
@@ -120,19 +178,46 @@ export default class Home extends Component {
                   type:'',
                   salary:0,
                   skills: '',
+                  chips:[],
                   email: '',
                 });
                 this.props.history.push('/dashboard');
 
             })
              .catch(err => {
-                alert(err.error);
-                console.log(err.error);
+              if(err.response){
+                if(err.response.data.error)
+                  alert(err.response.data.error)
+                else
+                  alert(err.message);
+              }
+              else
+                alert(err.message);
+              //  console.log(err.response.data.error);
              })
              ;
    }
 
     render() {
+    //  console.log(this.state.chips);
+      const handleDelete = (chipToDelete) => () => {
+          var x = this.state.chips.filter((chip) => chip.key !== chipToDelete.key)
+          this.setState({chips:x});
+      };
+
+      if(!this.state.authorized)
+        return(
+          <Container component="main" maxWidth="xs">
+            <CssBaseline />
+            <div style={classes.paper}>
+              
+              <Typography component="h1" variant="h5">
+                {"You don't have permissions to view this page!"}
+              </Typography>
+            </div>
+          </Container>
+          )
+
         return (
             <Container component="main" maxWidth="xs">
       <CssBaseline />
@@ -141,7 +226,12 @@ export default class Home extends Component {
         <Typography component="h1" variant="h5">
           Create a Job
         </Typography>
-        <form style={classes.form} noValidate onSubmit={this.onSubmit}>
+        <form style={classes.form} noValidate onSubmit={this.onSubmit}
+          onKeyPress={event => {
+          if (event.which === 13 /* Enter */) {
+            event.preventDefault();
+          }
+        }}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
@@ -165,9 +255,12 @@ export default class Home extends Component {
                 id="maxAppl"
                 label="Maximum Applications"
                 name="maxAppl"
+                type="number"
                 autoComplete="maxAppl"
                 value={this.state.maxAppl}
-                onChange={(e)=>this.setState({maxAppl:e.target.value})}
+                helperText="Enter positive numbers only"
+                error={(parseInt(this.state.maxAppl)>0)?false:true}
+                onChange={this.onIntInputChange}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -178,22 +271,12 @@ export default class Home extends Component {
                 id="maxPos"
                 label="Maximum Positions"
                 name="maxPos"
+                type="number"
                 autoComplete="maxPos"
                 value={this.state.maxPos}
-                onChange={(e)=>this.setState({maxPos:e.target.value})}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                variant="outlined"
-                required
-                fullWidth
-                id="email"
-                label="Email Address"
-                name="email"
-                autoComplete="email"
-                value={this.state.email}
-                onChange={this.onChangeEmail}
+                helperText="Enter positive numbers only"
+                error={(parseInt(this.state.maxPos)>0)?false:true}
+                onChange={this.onIntInputChange}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -202,13 +285,13 @@ export default class Home extends Component {
                 required
                 fullWidth
                 id="date"
+                name="date"
                 label="Application deadline date"
                 type="date"
-                defaultValue="2021-01-16"
                 InputLabelProps={{
                   shrink: true,
                 }}
-                onChange={(e)=>this.setState({date:e.target.value})}
+                onChange={this.onInputChange}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -217,29 +300,52 @@ export default class Home extends Component {
                 required
                 fullWidth
                 id="time"
+                name="time"
                 label="Application deadline time"
                 type="time"
-                defaultValue="17:30"
+                defaultValue = "00:00"
                 InputLabelProps={{
                   shrink: true,
                 }}
                 inputProps={{
                   step: 300, // 5 min
                 }}
+                onChange={this.onInputChange}
               />
             </Grid>
             <Grid item xs={12}>
-              <TextField
-                autoComplete="skills"
-                name="skills"
-                variant="outlined"
-                required
-                fullWidth
-                id="skills"
-                label="Skills"
-                value={this.state.skills}
-                onChange={(e)=>this.setState({skills:e.target.value})}
-              />
+            <Typography>Skills*</Typography>
+                <FormControl variant="outlined" required fullWidth>
+                  <Grid container spacing={1}>
+                  
+                  
+                    {this.state.chips.map((data)=>(
+                      <Grid item key={data.key}>
+                        <Chip
+                          key={data.key}
+                          label={data.label}
+                          onDelete={handleDelete(data)}
+                        />
+                      </Grid>))
+                    }
+
+
+
+                    <Grid item>
+                      <TextField
+                        autoComplete="skills"
+                        name="skills"
+                        fullWidth
+                        id="skills"
+                        label="Add a skill"
+                        value={this.state.skills}
+                        onChange={this.onInputChange}
+                        onKeyDown = {this.addSkill}
+                      />
+                    
+                    </Grid>
+                  </Grid>
+                </FormControl>
             </Grid>
             <Grid item xs={12} sm={6}>
               <FormControl variant="outlined" required fullWidth>
@@ -247,9 +353,11 @@ export default class Home extends Component {
                 <Select
                   labelId="select-label"
                   id="select"
+                  name="type"
                   value={this.state.type}
-                  onChange={(e)=>this.setState({type: e.target.value})}
+                  onChange={this.onInputChange}
                   label="type"
+
                 >
                   <MenuItem value={"Full-time"}>
                     Full-time
@@ -268,8 +376,9 @@ export default class Home extends Component {
                 <Select
                   labelId="select-label"
                   id="select"
+                  name="duration"
                   value={this.state.duration}
-                  onChange={(e)=>this.setState({duration: e.target.value})}
+                  onChange={this.onInputChange}
                   label="duration"
                 >
                   <MenuItem value={0}>
@@ -297,7 +406,7 @@ export default class Home extends Component {
                 value={this.state.salary}
                 helperText="Enter positive numbers only"
                 error={(parseInt(this.state.salary)>=0)?false:true}
-                onChange={(e)=> this.setState({salary:parseInt(e.target.value)||0})}
+                onChange={this.onIntInputChange}
               />
             </Grid>
           </Grid>
@@ -308,15 +417,8 @@ export default class Home extends Component {
             color="primary"
             style={classes.submit}
           >
-            Sign Up
+            Create Job
           </Button>
-          <Grid container justify="flex-end">
-            <Grid item>
-              <Link href="/" variant="body2">
-                Already have an account? Sign in
-              </Link>
-            </Grid>
-          </Grid>
         </form>
       </div>
            

@@ -3,6 +3,8 @@ var router = express.Router();
 var bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+const auth = require('../middleware/auth.js');
+
 //JSON web token to send encrypted data between frontend and backend
 // contains header(algo and token type), payload(data), verify signature
 // payload usually has our data, the iat(issued at time) and expiry time
@@ -13,16 +15,23 @@ const secret = require('../config/keys').secret;
 // Load User model
 const User = require("../models/User");
 
+
+
+// route: user/ 
+// PUBLIC
 // GET request 
-// Getting all the users
-router.get("/", function(req, res) {
-    User.find(function(err, users) {
-		if (err) {
-			console.log(err);
-		} else {
-			res.json(users);
-		}
-	})
+router.get("/", auth, function(req, res) {
+    console.log(req.user);
+    const id = req.user.id;
+    User.findOne({id}).then(user=> {
+        if (user) {
+            res.status(200).json({check:true})
+        } else {
+            res.status(200).json({check:false});
+        }
+        })
+        .catch(err=>{res.status(400).send(err)});
+    
 });
 
 // NOTE: Below functions are just sample to show you API endpoints working, for the assignment you may need to edit them
@@ -53,7 +62,7 @@ router.post("/register", (req, res) => {
             newUser.save()
                 .then(user => {
                     jwt.sign(
-                        {id:user.id},
+                        {id:user.id, role:user.role},
                         secret,
                         {expiresIn: 7200 },
                         (err, token) =>{
@@ -63,7 +72,6 @@ router.post("/register", (req, res) => {
                         
                                 id: user.id,
                                 name: user.fname+" "+user.lname,
-                                email: user.email,
                                 role: user.role,
                             
                             });
@@ -116,9 +124,9 @@ router.post("/login", (req, res) => {
 
                 //matched, send jwt to frontend
                 jwt.sign(
-                    {id:user.id},
+                    {id:user.id, email:user.email},
                     secret,
-                    {expiresIn: 7200 },
+                    {expiresIn: 25200 },
                     (err, token) =>{
                         if(err) throw err;
                         res.status(200).json({

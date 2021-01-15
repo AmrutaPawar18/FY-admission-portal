@@ -67,6 +67,45 @@ export default class Home extends Component {
     }
 
     componentDidMount() {
+      var tok = localStorage.getItem('token');
+      var ck = false;
+      var config = {
+          headers: {
+            'Content-type': 'application/json'
+          }
+        }
+
+        // If token, add to headers
+        if (tok) {
+          config.headers['auth-tok'] = tok;
+        }
+        axios.get('http://localhost:5000/user', config)
+             .then(res => {
+              console.log(res);
+              if(res.data.check)
+                ck = true;
+            })
+             .catch(err=>{
+              if(err.response){
+                if(err.response.data.error)
+                  console.log(err.response.data.error)
+                else
+                  console.log(err.message);
+              }
+              else
+                console.log(err.message);
+             })
+
+      if(ck){
+        if(tok){
+          var role = localStorage.getItem('role');
+          if(role==='Applicant')
+            this.props.history.push('/path');
+          else if(role === 'Recruiter')
+            this.props.history.push('/createJob');
+
+        }
+      }
 
     }
 
@@ -82,8 +121,13 @@ export default class Home extends Component {
         e.preventDefault();
         axios.post('http://localhost:5000/user/login', {email:this.state.email, password:this.state.pwd})
              .then(res => {alert("Welcome\t" + res.data.name);
-                console.log(res);
-                this.props.history.push('/path');
+                localStorage.setItem('token', res.data.token);
+                var role = res.data.role;
+                localStorage.setItem('role', role);
+                if(role==='Applicant')
+                  this.props.history.push('/path');
+                else if(role === 'Recruiter')
+                  this.props.history.push('/createJob');
               })
              .catch(err => {
                 console.log(err)

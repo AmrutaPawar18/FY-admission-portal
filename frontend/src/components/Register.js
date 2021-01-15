@@ -65,7 +65,16 @@ export default class Home extends Component {
     }
 
     componentDidMount() {
+      var tok = localStorage.getItem('token');
 
+      if(tok){
+        var role = localStorage.getItem('role');
+        if(role==='Applicant')
+          this.props.history.push('/path');
+        else if(role === 'Recruiter')
+          this.props.history.push('/createJob');
+
+      }
     }
 
     onChangeUsername(event) {
