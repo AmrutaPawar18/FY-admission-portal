@@ -14,15 +14,16 @@ app.use(express.json());
 const db = require('./config/keys').mongoURI;
 
 const users = require("./routes/Users");
-const recruiters = require("./routes/createJob");
-//const applicants = require("./routes/Applicants");
+const recruiters = require("./routes/recr");
+const applicants = require("./routes/appl");
 //const recruiters = require("./routes/Recruiters");
 //connecting to db
 mongoose
     .connect(db, { 
     	useUnifiedTopology: true, 
     	useNewUrlParser: true,
-    	useCreateIndex: true
+    	useCreateIndex: true,
+        useFindAndModify: false,
     });
 const connection = mongoose.connection;
 connection.once('open', function() {
@@ -31,7 +32,7 @@ connection.once('open', function() {
 
 //Use routes
 app.use("/user",users);
-//app.use("/$app", applicants);
+app.use("/appl", applicants);
 app.use("/recr", recruiters);
     
     const port = process.env.PORT || 5000;

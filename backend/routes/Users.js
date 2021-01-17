@@ -23,9 +23,9 @@ const User = require("../models/User");
 router.get("/", auth, function(req, res) {
     console.log(req.user);
     const id = req.user.id;
-    User.findOne({id}).then(user=> {
+    User.findById(id).then(user=> {
         if (user) {
-            res.status(200).json({check:true})
+            res.status(200).json({check:true, role:req.user.role})
         } else {
             res.status(200).json({check:false});
         }
@@ -34,7 +34,24 @@ router.get("/", auth, function(req, res) {
     
 });
 
-// NOTE: Below functions are just sample to show you API endpoints working, for the assignment you may need to edit them
+// route: user/updateDetails  
+// PRIVATE
+// POST request 
+// Update profile 
+router.post("/updateDetails", auth, (req, res)=> {
+    const fname= (req.body.fname);
+    const lname = req.body.lname;
+    const user_id = req.user.id;
+    console.log(req.user);
+    User.updateOne({_id:user_id}, {$set: {fname,lname}})
+        .then(savedPro => {
+
+            res.status(200).json(savedPro);
+        })
+        .catch(err => {
+            res.status(400).send(err);
+        });
+    });
 
 // route: user/register    
 // PUBLIC
@@ -124,7 +141,7 @@ router.post("/login", (req, res) => {
 
                 //matched, send jwt to frontend
                 jwt.sign(
-                    {id:user.id, email:user.email},
+                    {id:user.id, role:user.role},
                     secret,
                     {expiresIn: 25200 },
                     (err, token) =>{
@@ -133,7 +150,6 @@ router.post("/login", (req, res) => {
                             token,
                             id: user.id,
                             name: user.fname+" "+user.lname,
-                            email: user.email,
                             role: user.role,  
                         });
                     })

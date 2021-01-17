@@ -127,7 +127,7 @@ export default class Home extends Component {
             duration: this.state.duration,
             type: this.state.type,
             salary: this.state.salary,
-            skills: arr,
+            skills: this.state.chips,
 
         }
         // console.log(newJob);

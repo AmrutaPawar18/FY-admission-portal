@@ -13,7 +13,8 @@ const JobSchema = new Schema({
 	},
 	recr_id: {
 		type: Schema.Types.ObjectId,
-		required: true
+		required: true,
+        ref: 'Users'
 	},
     salary: {
     	type: Number,
@@ -32,7 +33,7 @@ const JobSchema = new Schema({
     	required: true
     },
     skills: {
-    	type: [String],
+    	type: Array,
     	required: true
     },
     type: {
@@ -55,6 +56,14 @@ const JobSchema = new Schema({
 		required: true,
 		default: Date.now
 	},
+    appl_got:{      //updated when applicant submits application
+        type: Number,   
+        default: 0
+    },
+    posn_filled:{   //updated when recruiter accepts application
+        type:Number,
+        default:0
+    }
 });
 
 module.exports = Job = mongoose.model("Jobs", JobSchema);

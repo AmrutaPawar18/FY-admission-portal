@@ -7,29 +7,28 @@ const educationSchema = new Schema({
         required: true
     },
     start_year: {
-        type: String,
+        type: Number,
         required: true
     },
     end_year: {
-        type: String,
+        type: Number,
+        default:null
     }
 })
 // Create Schema
 const ApplicantSchema = new Schema({
     
-    name: {
-        type: String,
-        required: true
+    user_id: {
+        type: Schema.Types.ObjectId,
+        required: true, 
+        ref: 'Users'
     },
-    email: {
-        type: String,
+    education: {
+        type:Array,
         required: true
-    },
-    education:{
-        [educationSchema]
     },
     skills: {
-        type: String,
+        type: Array,
         required: true
     },
     rating: {

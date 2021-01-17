@@ -18,6 +18,8 @@ import axios from 'axios';
 
 /**/
 
+var hi = []
+
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
@@ -66,7 +68,7 @@ export default class Home extends Component {
         this.onSubmit = this.onSubmit.bind(this);
     }
 
-    componentDidMount() {
+    async componentDidMount() {
       var tok = localStorage.getItem('token');
       var ck = false;
       var config = {
@@ -79,11 +81,12 @@ export default class Home extends Component {
         if (tok) {
           config.headers['auth-tok'] = tok;
         }
-        axios.get('http://localhost:5000/user', config)
+        await axios.get('http://localhost:5000/user', config)
              .then(res => {
-              console.log(res);
-              if(res.data.check)
+              if(res.data.check){
                 ck = true;
+                localStorage.setItem('role', res.data.role)
+              }
             })
              .catch(err=>{
               if(err.response){
@@ -94,13 +97,16 @@ export default class Home extends Component {
               }
               else
                 console.log(err.message);
-             })
+             });
 
       if(ck){
         if(tok){
           var role = localStorage.getItem('role');
-          if(role==='Applicant')
+          console.log(role)
+          if(role==='Applicant'){
+            console.log("Applicant")
             this.props.history.push('/path');
+          }
           else if(role === 'Recruiter')
             this.props.history.push('/createJob');
 
@@ -187,9 +193,7 @@ render() {
 
           <Grid container style={{paddingTop:10}}>
             <Grid item xs>
-              <Link href="#" variant="body2">
-                Forgot password?
-              </Link>
+              
             </Grid>
             <Grid item>
               <Link href="/register" variant="body2">

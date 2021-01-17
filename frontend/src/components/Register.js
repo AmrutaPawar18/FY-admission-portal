@@ -70,7 +70,7 @@ export default class Home extends Component {
       if(tok){
         var role = localStorage.getItem('role');
         if(role==='Applicant')
-          this.props.history.push('/path');
+          this.props.history.push('/acompleteProfile');
         else if(role === 'Recruiter')
           this.props.history.push('/createJob');
 

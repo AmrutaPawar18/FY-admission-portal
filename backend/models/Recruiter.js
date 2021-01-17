@@ -3,19 +3,15 @@ const Schema = mongoose.Schema;
 
 // Create Schema
 const RecruiterSchema = new Schema({
-	name: {
-		type: String,
-		required: true
-	},
-	email: {
-		type: String,
-		required: true,
-		unique: true
+	user_id: {
+		type: Schema.Types.ObjectId,
+        required: true, 
+        ref: 'Users'
 	},
     contact: {
     	type: String,
     	required: true
-    }
+    },
     bio: {
     	type: String,
     	maxLength: 250,
