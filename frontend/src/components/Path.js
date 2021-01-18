@@ -50,9 +50,10 @@ class ApplDash extends Component {
         this.handleClose= this.handleClose.bind(this);
         this.handleDiaSubmit = this.handleDiaSubmit.bind(this);
         this.sortSalaryChange = this.sortSalaryChange.bind(this);
+        this.loadJobs = this.loadJobs.bind(this);
     }
 
-    componentDidMount() {
+    loadJobs(){
       var token = localStorage.getItem('token');
 
         // Headers
@@ -85,6 +86,10 @@ class ApplDash extends Component {
           .catch(function(error) {
             console.log(error);
           })
+    }
+
+    componentDidMount() {
+      this.loadJobs();
     }
 
     handleChange(e,n){
@@ -130,10 +135,13 @@ class ApplDash extends Component {
               sop:'',
               jobId:''
             });
-            alert("Submitted application!")
+            this.loadJobs();
+            alert("Submitted application!");
+
           })
           .catch(function(error) {
             console.log(error);
+            alert("Something went wrong. Please try again");
           })
     }
 
