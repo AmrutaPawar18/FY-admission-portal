@@ -14,8 +14,7 @@ const RecruiterSchema = new Schema({
     },
     bio: {
     	type: String,
-    	maxLength: 250,
-    	required: false//idk???
+    	maxLength: 250
     }
 });
 

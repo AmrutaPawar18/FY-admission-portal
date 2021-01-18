@@ -83,9 +83,9 @@ export default class Home extends Component {
 
     }
 
-    handleDelete(chip){
+    handleDelete(chip, e){
       console.log(chip.target);
-      var chips = this.state.chips.filter((data)=> data===chip);
+      var chips = this.state.chips.filter((data)=> data.key!==chip.key);
       console.log(chips);
       this.setState(chips)
     }
@@ -167,7 +167,7 @@ export default class Home extends Component {
 
         axios.post('http://localhost:5000/recr/newJob', newJob, config)
              .then(res => {
-               alert("Created job\t" + res.data.job.title);
+               alert("Created job\t" + res.data.title);
                 this.setState({
                   title:'',
                   maxAppl:0,
@@ -219,7 +219,7 @@ export default class Home extends Component {
           )
 
         return (
-            <Container component="main" maxWidth="xs">
+            <Container component="main" maxWidth="md">
       <CssBaseline />
       <div style={classes.paper}>
         
@@ -324,7 +324,7 @@ export default class Home extends Component {
                         <Chip
                           key={data.key}
                           label={data.label}
-                          onDelete={handleDelete(data)}
+                          onDelete={()=>this.handleDelete(data)}
                         />
                       </Grid>))
                     }

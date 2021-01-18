@@ -53,7 +53,7 @@ router.post("/newJob", authR, (req, res) => {
 // Getting all the jobs
 router.get("/jobs", function(req, res) {
 
-    Job.find({recr_id: req.user.id})
+    Job.findOne({recr_id: req.user.id})
     	.then(jobs=> {
 			res.status(200).json(jobs);
 		})

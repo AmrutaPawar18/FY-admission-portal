@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const stages = ['Applied', 'Shortlisted', 'Accepted', 'Rejected'];
+const stages = ['Applied', 'Shortlisted', 'Accepted', 'Rejected','Job deleted'];
 
 // Create Schema
 const ApplicationSchema = new Schema({
@@ -10,14 +10,10 @@ const ApplicationSchema = new Schema({
         required: true, 
         ref: 'Jobs'
 	},
-    appl_email: {
-    	type: String,
-    	required: true,
-        match: '/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/'
-    },
-    appl_name: {
-        type: String,
-        required: true
+    appl_user_id: {
+    	type: Schema.Types.ObjectId,
+        required: true, 
+        ref: 'Users'
     },
     date_of_appl:{
         type:Date,
@@ -43,7 +39,6 @@ const ApplicationSchema = new Schema({
     },
     sop: {
     	type: String,
-    	maxLength: 250,
     	required: true
     }
 });

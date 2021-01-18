@@ -1,4 +1,5 @@
 var express = require("express");
+var ObjectId = require('mongoose').Types.ObjectId; 
 var router = express.Router();
 var bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -22,8 +23,15 @@ const Applicant = require("../models/Applicant")
 // PRIVATE
 // GET request 
 // Getting all the jobs
-router.get("/", function(req, res) {
-
+router.get("/", authA, async function(req, res) {
+    var user_id=req.user.id;
+    //console.log(user_id)
+    var applications = [];
+    await Application.find({appl_user_id: ObjectId(user_id)})
+        .then(applicat => {
+            applications= applicat;
+        })
+            console.log(applications)
     Job.find()
     	.populate('recr_id', 'email fname lname')
     	.then(jobs=> {
@@ -36,7 +44,26 @@ router.get("/", function(req, res) {
     			// console.log(dead.getTime())
     			return (((new Date()).getTime())<dead.getTime())
     		})
-			res.status(200).json(filt);
+            var f=[];
+            if(applications===[]){
+                f = filt.map((j)=>{
+                    return({...j._doc,applied:false});
+                })
+            }
+            else{
+                f = filt.map((j)=>{
+                    console.log(j)
+                    if(applications.some(applicati=>
+                        applicati.job_id.toString()===j._id.toString())){
+                        return({...j._doc,applied:true});
+                    }
+                    else{
+                        return({...j._doc,applied:false});
+                    }
+                })
+            }
+            console.log(f)
+			res.status(200).json(f);
 		})
     	.catch(err =>{
     		res.status(400).send(err);
@@ -47,20 +74,21 @@ router.get("/", function(req, res) {
 // PRIVATE
 // POST request 
 // Add a application to db
-router.post("/newApplication", (req, res) => {
+router.post("/apply", authA, async (req, res) => {
 	const newApplication = new Application(req.body);
 	const applId = req.user.id;
-	Applicant.findById(applId)
-		.populate('user_id','email fname lname')
+	await Applicant.findOne({user_id:applId})
 		.then( appl =>{
+                console.log("i")
 			if(appl){
+                console.log(appl)
 				newApplication.appl_edu = appl.education;
 				newApplication.appl_skills = appl.skills;
 				newApplication.appl_rating = appl.rating;
-				newApplication.appl_name = appl.user_id.fname + " " +appl.user_id.lname;
-				newApplication.appl_email = appl.user_id.email;
+				newApplication.appl_user_id = applId;
 			}
 			else{
+                console.log("hi")
 				return res.status(400).json({error: "Couldn't find applicant details"});
 			}
 		})
@@ -69,6 +97,7 @@ router.post("/newApplication", (req, res) => {
 			return res.status(400).json({err, error: "Couldn't find applicant details"});
 		});
 	console.log(req.user);
+    console.log(newApplication);
 	const jobId = req.body.job_id;
 	newApplication.save()
         .then(application => {

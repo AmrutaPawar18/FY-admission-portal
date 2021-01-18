@@ -8,9 +8,10 @@ const roles = [
 
 const userSchema = new mongoose.Schema({
     email: {
-        type: mongoose.SchemaTypes.Email,
+        type:String,
         unique: [true, "This email is already used!"],
-        required: [true, "Email field is required!"]
+        required: [true, "Email field is required!"],
+        match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Invalid email address']
     },
     password: {
         type: String,
