@@ -23,6 +23,15 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import FormLabel from '@material-ui/core/FormLabel';
+import FormControl from '@material-ui/core/FormControl';
+import FormGroup from '@material-ui/core/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
 
 import SearchIcon from "@material-ui/icons/Search";
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
@@ -36,20 +45,33 @@ class ApplDash extends Component {
         this.state = {
             jobs: [],
             sortedJobs: [], 
+            filtjobs:[],
             sortSalary:true,
+            sortBy:"salary",
             value:[20,1000],
             showSop:false,
             sop:'',
-            jobId:''
+            jobId:'',
+            maxSal:0,
+            filtSal:false,
+            filtType:false,
+            type:'',
+            filtDur:false,
+            duration:'',
+            desc:1
         };
         this.renderIcon = this.renderIcon.bind(this);
         this.handleChange = this.handleChange.bind(this);
-        this.filtSalJobs = this.filtSalJobs.bind(this);
+        this.filtJobs = this.filtJobs.bind(this);
+        this.filtAlt = this.filtAlt.bind(this);
+        this.onSliderChange = this.onSliderChange.bind(this);
         this.onInputChange = this.onInputChange.bind(this);
+        this.onCheckChange = this.onCheckChange.bind(this);
         this.apply = this.apply.bind(this);
         this.handleClose= this.handleClose.bind(this);
         this.handleDiaSubmit = this.handleDiaSubmit.bind(this);
-        this.sortSalaryChange = this.sortSalaryChange.bind(this);
+        this.sortJobs = this.sortJobs.bind(this);
+        this.sortAlt = this.sortAlt.bind(this);
         this.loadJobs = this.loadJobs.bind(this);
     }
 
@@ -80,7 +102,9 @@ class ApplDash extends Component {
             });
             this.setState({
               jobs: array, 
-              sortedJobs:array
+              sortedJobs:array,
+              filtjobs:array,
+              maxSal:array[0].salary
             });
           })
           .catch(function(error) {
@@ -148,27 +172,59 @@ class ApplDash extends Component {
     onInputChange(event) {
         this.setState({ [event.target.name]: event.target.value });
     }
+    async onCheckChange(event) {
+        await this.setState({ [event.target.name]: event.target.checked });
+        this.filtJobs();
+    }
 
     apply(id,e){
       this.setState({jobId:id, showSop:true})
     }
 
-    filtSalJobs(e,n){
+    async filtAlt(e){
+      await this.setState({ [e.target.name]: e.target.value });
+      this.filtJobs();
+    }
+
+    async onSliderChange(e,n){
+      await this.setState({value:n})
+      this.filtJobs()
+    }
+
+    filtJobs(){
       var arr = this.state.jobs;
-        var filt = arr.filter((job, i)=>(job.salary>=n[0] && job.salary<=n[1]))
+      
+      var filt = [];
+      if(this.state.filtSal){
+        var n = this.state.value
+        arr = arr.filter((job, i)=>(job.salary>=n[0] && job.salary<=n[1]))
+      }
+      if(this.state.filtType){
+        arr = arr.filter((job, i)=>(job.type===this.state.type))
+      }
+      if(this.state.filtDur){
+        arr = arr.filter((job, i)=>(job.duration<this.state.duration))
+      }
       this.setState({
-        value:n,
-        jobs:filt
+        filtjobs:arr
       })
     }
 
-    sortSalaryChange(){
+    async sortAlt(e){
+      await this.setState({ [e.target.name]: e.target.value });
+      this.sortJobs();
+    }
+
+    sortJobs(){
 /**
  *      Note that this is sorting only at front-end.
  */
-        var array = this.state.jobs;
-        var flag = this.state.sortSalary;
-        array.sort(function(a, b) {
+        var array = this.state.filtjobs;
+        var flag = this.state.desc ;  //when desc 0 we have to change it to 1
+                                // and sort in desc. sort will be in desc if flag=1
+        var sb = this.state.sortBy;
+        if(sb==="salary"){
+          array.sort(function(a, b) {
             if(a.salary != undefined && b.salary != undefined){
                 return (1 - flag*2) * (a.salary - b.salary);
             }
@@ -176,8 +232,30 @@ class ApplDash extends Component {
                 return 1;
             }
           });
+        }
+        else if(sb ==="duration"){
+          array.sort(function(a, b) {
+            if(a.duration != undefined && b.duration != undefined){
+                return (1 - flag*2) * (a.duration - b.duration);
+            }
+            else{
+                return 1;
+            }
+          });
+        }
+        else if(sb ==="rating"){
+          array.sort(function(a, b) {
+            if(a.rating != undefined && b.rating != undefined){
+                return (1 - flag*2) * (a.rating - b.rating);
+            }
+            else{
+                return 1;
+            }
+          });
+        }
+        //console.log(flag)
         this.setState({
-            jobs:array,
+            filtjobs:array,
             sortSalary:!this.state.sortSalary,
         })
     }
@@ -214,6 +292,8 @@ class ApplDash extends Component {
               fullWidth
               name= "sop"
               required
+              multiline
+              rows={4}
               value={this.state.sop}
               onChange={ this.onInputChange}
             />
@@ -232,21 +312,132 @@ class ApplDash extends Component {
         </Dialog>
 
 
-          <Grid container>
-           
-            <Grid item xs={12} md={3} lg={3}>
-              <Typography id="range-slider" gutterBottom>
-                Salary range
-              </Typography>
-              <Slider
-                max={this.state.sortedJobs[0]?this.state.sortedJobs[0].salary+100:10000}
+        <Grid container spacing={1}>
+        <Grid item xs={12} md={9}>
+          <Paper style={{textAlign:'center', marginBottom:10, padding:10}}>
+          <Grid container spacing={1}>
+          <Grid item xs={12}>
+          <Typography> FILTER:</Typography>
+          </Grid>
+          <Grid item xs={6} md={4}>
+          <Paper elevation={0} style={{textAlign:'center'}}>
+          <FormControlLabel
+                control={<Checkbox color="primary" 
+                name="filtSal"
+                checked={this.state.filtSal}
+                onChange={this.onCheckChange}/>}
+                label="Salary"
+                labelPlacement="bottom"
+              />
+          <Slider
+                max={this.state.maxSal?this.state.maxSal+100:10000}
                 value={this.state.value}
                 onChange={this.handleChange}
-                onChangeCommitted={this.filtSalJobs}
+                onChangeCommitted={this.filtJobs}
                 valueLabelDisplay="auto"
                 aria-labelledby="range-slider"
               />
-            </Grid>
+              </Paper>
+              </Grid>
+              <Grid item xs={4}>
+              <Paper elevation={0} style={{textAlign:'center'}}>
+                <FormControlLabel
+                control={<Checkbox color="primary" 
+                name="filtType"
+                checked={this.state.filtType}
+                onChange={this.onCheckChange}/>}
+                label="Job Type"
+                labelPlacement="bottom"
+              />
+              <FormControl variant="outlined" fullWidth>
+                <Select
+                  labelId="select-label"
+                  id="select"
+                  name="type"
+                  value={this.state.type}
+                  onChange={this.filtAlt}
+
+                >
+                  <MenuItem value={""}>
+                    <em>Select</em>
+                  </MenuItem>
+                  <MenuItem value={"Full-time"}>
+                    Full-time
+                  </MenuItem>
+                  <MenuItem value={"Part-time"}>Part-time</MenuItem>
+                  <MenuItem value={"Work from Home"}>Work from Home</MenuItem>
+                </Select>
+              </FormControl>
+              </Paper>
+              </Grid>
+
+              <Grid item xs={4}>
+                <Paper elevation={0} style={{textAlign:'center'}}>
+              <FormControlLabel
+                control={<Checkbox color="primary" 
+                name="filtDur"
+                checked={this.state.filtDur}
+                onChange={this.onCheckChange}/>}
+                label="Duration less than:"
+                labelPlacement="bottom"
+              />
+              <FormControl variant="outlined" fullWidth>
+                <Select
+                  labelId="select-label"
+                  id="select"
+                  name="duration"
+                  value={this.state.duration}
+                  onChange={this.filtAlt}
+                >
+                  <MenuItem value={1}>1</MenuItem>
+                  <MenuItem value={2}>2</MenuItem>
+                  <MenuItem value={3}>3</MenuItem>
+                  <MenuItem value={4}>4</MenuItem>
+                  <MenuItem value={5}>5</MenuItem>
+                  <MenuItem value={6}>6</MenuItem>
+                  <MenuItem value={7}>7</MenuItem>
+                </Select>
+              </FormControl>
+              </Paper>
+
+              </Grid>
+              </Grid>
+              </Paper>
+              </Grid>
+
+          <Grid item xs={12} md={3}>
+          <Paper style={{textAlign:'center', paddingTop:10, marginBottom:5}}>
+          <Grid container spacing={0}>
+          <Grid item xs={6}>
+          <Typography> SORT: </Typography>
+          </Grid>
+          <Grid item xs={6}>
+          <Select
+                  labelId="select-label"
+                  id="select"
+                  name="desc"
+                  value={this.state.desc}
+                  onChange={this.sortAlt}
+                >
+                  <MenuItem value={0}>
+                    Ascending
+                  </MenuItem>
+                  <MenuItem value={1}>Descending</MenuItem>
+          </Select>
+          </Grid>
+          <Grid item xs={12}>
+          <FormControl component="fieldset">
+  <RadioGroup aria-label="sort" name="sortBy" value={this.state.sortBy} onChange={this.sortAlt}>
+    <FormControlLabel value="salary" control={<Radio />} label="Salary" />
+    <FormControlLabel value="duration" control={<Radio />} label="Duration" />
+    <FormControlLabel value="rating" control={<Radio />} label="Rating" />
+  </RadioGroup>
+</FormControl>
+        </Grid>
+        </Grid>
+        </Paper>
+          </Grid>
+          
           </Grid>
           <Grid container>
             <Grid item xs={12} md={12} lg={12}>
@@ -261,12 +452,12 @@ class ApplDash extends Component {
                       <TableCell>Required Skills</TableCell>
                       <TableCell>Type of Job</TableCell>
                       <TableCell>Duration</TableCell>
-                      <TableCell> <Button onClick={this.sortSalaryChange}>{this.renderIcon()}</Button>Salary</TableCell>
+                      <TableCell> Salary</TableCell>
                       <TableCell>Rating</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {this.state.jobs.map((job,ind) => (
+                    {this.state.filtjobs.map((job,ind) => (
                       <TableRow key={job._id}>
                         <TableCell>{job.title}</TableCell>
                         <TableCell>{job.recr_id.fname+" "+job.recr_id.lname+" @ "+job.recr_id.email}</TableCell>

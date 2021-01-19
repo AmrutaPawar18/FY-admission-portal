@@ -359,11 +359,11 @@ export default class Home extends Component {
                   label="type"
 
                 >
-                  <MenuItem value={"Full-time"}>
-                    Full-time
-                  </MenuItem>
                   <MenuItem value={""}>
                     <em>Select</em>
+                  </MenuItem>
+                  <MenuItem value={"Full-time"}>
+                    Full-time
                   </MenuItem>
                   <MenuItem value={"Part-time"}>Part-time</MenuItem>
                   <MenuItem value={"Work from Home"}>Work from Home</MenuItem>
