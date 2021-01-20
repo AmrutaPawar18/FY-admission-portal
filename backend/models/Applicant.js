@@ -35,7 +35,7 @@ const ApplicantSchema = new Schema({
         type: Number,
         min: 0,
         max: 5,
-    }
+    },
 });
 
 module.exports = Applicant = mongoose.model("Applicants", ApplicantSchema);

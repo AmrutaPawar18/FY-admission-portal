@@ -231,7 +231,7 @@ export default class Home extends Component {
                .then(res => {
                   alert("Added!");
                   this.setState({edit:false});
-                  this.props.history.push("/path")
+                  this.props.history.push("/aDashboard")
                 })
                .catch(err => {
                   if(err.response){

@@ -58,20 +58,22 @@ class ApplDash extends Component {
             type:'',
             filtDur:false,
             duration:'',
-            desc:1
+            desc:1,
+            recr_id:'',
+            mess:''
         };
         this.renderIcon = this.renderIcon.bind(this);
         this.handleChange = this.handleChange.bind(this);
-        this.filtJobs = this.filtJobs.bind(this);
-        this.filtAlt = this.filtAlt.bind(this);
+        this.filtJobs = this.filtJobs.bind(this); // to filter jobs
+        this.filtAlt = this.filtAlt.bind(this);   // on change of job type and duration dropdowns
         this.onSliderChange = this.onSliderChange.bind(this);
         this.onInputChange = this.onInputChange.bind(this);
         this.onCheckChange = this.onCheckChange.bind(this);
-        this.apply = this.apply.bind(this);
-        this.handleClose= this.handleClose.bind(this);
+        this.apply = this.apply.bind(this); //open dialog
+        this.handleClose= this.handleClose.bind(this);  //close dialog
         this.handleDiaSubmit = this.handleDiaSubmit.bind(this);
         this.sortJobs = this.sortJobs.bind(this);
-        this.sortAlt = this.sortAlt.bind(this);
+        this.sortAlt = this.sortAlt.bind(this);   //on changing sort section dropdowns
         this.loadJobs = this.loadJobs.bind(this);
     }
 
@@ -91,7 +93,7 @@ class ApplDash extends Component {
         }
         axios.get('http://localhost:5000/appl/',config)
           .then(response => {
-            var array = response.data;
+            var array = response.data.f;
             array.sort(function(a, b) {
               if(a.salary != undefined && b.salary != undefined){
                   return (-1) * (a.salary - b.salary);
@@ -104,7 +106,8 @@ class ApplDash extends Component {
               jobs: array, 
               sortedJobs:array,
               filtjobs:array,
-              maxSal:array[0].salary
+              maxSal:array[0].salary,
+              mess: response.data.mess
             });
           })
           .catch(function(error) {
@@ -149,7 +152,7 @@ class ApplDash extends Component {
           config.headers['auth-tok'] = token;
         }
 
-        var data = {sop:this.state.sop, job_id:this.state.jobId}
+        var data = {sop:this.state.sop, job_id:this.state.jobId, recr_id:this.state.recr_id}
 
       axios.post('http://localhost:5000/appl/apply',data, config)
           .then(response => {
@@ -177,8 +180,12 @@ class ApplDash extends Component {
         this.filtJobs();
     }
 
-    apply(id,e){
-      this.setState({jobId:id, showSop:true})
+    apply(id, recr_id,e){
+      if(this.state.mess!==''){
+        alert(this.state.mess);
+        return;
+      }
+      this.setState({jobId:id, showSop:true, recr_id:recr_id})
     }
 
     async filtAlt(e){
@@ -220,8 +227,8 @@ class ApplDash extends Component {
  *      Note that this is sorting only at front-end.
  */
         var array = this.state.filtjobs;
-        var flag = this.state.desc ;  //when desc 0 we have to change it to 1
-                                // and sort in desc. sort will be in desc if flag=1
+        var flag = this.state.desc ;  //when desc 1 we have to 
+                                // sort in desc. sort will be in desc if flag=1
         var sb = this.state.sortBy;
         if(sb==="salary"){
           array.sort(function(a, b) {
@@ -474,7 +481,7 @@ class ApplDash extends Component {
                             ):(
                             <Button
                               size="small"
-                              onClick={(e)=>this.apply(job._id,e)}
+                              onClick={(e)=>this.apply(job._id, job.recr_id._id,e)}
                               style={{backgroundColor:'green', color:'white'}}>
                               Apply
                             </Button>

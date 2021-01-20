@@ -27,9 +27,18 @@ router.get("/", authA, async function(req, res) {
     var user_id=req.user.id;
     //console.log(user_id)
     var applications = [];
+    var mess = '';
     await Application.find({appl_user_id: ObjectId(user_id)})
         .then(applicat => {
             applications= applicat;
+            var filt = applicat.filter(a=>{ a.stage==='Applied' || a.stage==='Shortlisted'});
+            var accepted = applicat.filter(a=>{a.stage==='Accepted'});
+            if(filt.length===10){
+                mess = "Sorry, you can't apply to more jobs as you reached application limit!"
+            }
+            if(accepted.length>0){
+                mess = "You can't apply to more jobs as you have been accepted in a job already"
+            }
         })
             console.log(applications)
     Job.find()
@@ -62,8 +71,9 @@ router.get("/", authA, async function(req, res) {
                     }
                 })
             }
+
             console.log(f)
-			res.status(200).json(f);
+			res.status(200).json({f,mess});
 		})
     	.catch(err =>{
     		res.status(400).send(err);
@@ -155,13 +165,30 @@ router.post("/updateProfile", authA, (req, res) => {
 // route: appl/profile   
 // PRIVATE
 // GET request 
-// Add a profile to db
+// get profile info from db
 router.get("/profile", authA, (req, res) => {
     var id = req.user.id;
     Applicant.findOne({user_id: id})
         .populate('user_id','email fname lname')
         .then(pro => {
             res.status(200).json(pro);
+        })
+        .catch(err => {
+            res.status(400).send(err);
+        });
+    });
+
+// route: appl/application  
+// PRIVATE
+// GET request 
+// get application info from db
+router.get("/applications", authA, (req, res) => {
+    var id = req.user.id;
+    Application.find({appl_user_id: id})
+        .populate('recr_id','email fname lname')
+        .populate('job_id','title salary')
+        .then(a => {
+            res.status(200).json(a);
         })
         .catch(err => {
             res.status(400).send(err);
