@@ -117,7 +117,7 @@ export default class Home extends Component {
         this.setState({ [event.target.name]: event.target.value });
     }
 
-    onSubmit(e) {
+    async onSubmit(e) {
       e.preventDefault();
       if(!this.state.edit)
         this.setState({edit:true});
@@ -143,8 +143,24 @@ export default class Home extends Component {
           var prof = this.state;
           delete prof.edit;
           console.log(prof);
-
-          axios.post('http://localhost:5000/recr/updateProfile', prof, config)
+          var c=0;
+          await axios.patch('http://localhost:5000/user/updateDetails', {lname:this.state.lname,fname:this.state.fname}, config)
+               .then(res => {
+                })
+               .catch(err => {
+                  if(err.response){
+                    if(err.response.data.error)
+                      alert(err.response.data.error)
+                    else
+                      alert(err.message);
+                  }
+                  
+                  else
+                    alert(err.message);  
+                  c=1;
+               });
+          if(c) return;
+          axios.patch('http://localhost:5000/recr/updateProfile', prof, config)
                .then(res => {
                   alert("Updated");
                   this.setState({edit:false})
@@ -219,8 +235,9 @@ render() {
                 name="email"
                 autoComplete="email"
                 value={this.state.email}
-                onChange={this.onInputChange}InputProps = {{
-                  readOnly: !this.state.edit
+                onChange={this.onInputChange}
+                InputProps = {{
+                  readOnly: true
                 }}
               />
             </Grid>

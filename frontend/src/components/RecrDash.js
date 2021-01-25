@@ -278,7 +278,7 @@ export default class RecrDash extends React.Component{
       <CardActions>
         <Button color="primary" size="small" onClick={(e)=>this.editButton(ind,e)}>{j.edit?"Update":"Edit"}</Button>
 
-        <Link to={{pathname:"/applications",data:j._id}}>
+        <Link to={{pathname:`/applications/${j._id}`,data:j._id}}>
         	<Button color="primary" size="small">Show Applications</Button>
         </Link>
 

@@ -49,7 +49,6 @@ const JobSchema = new Schema({
     	type: Number,
     	min: 0,
     	max: 5,
-    	required: false//idk????
     },
 	date_of_post:{
 		type: Date,

@@ -39,12 +39,22 @@ const ApplicationSchema = new Schema({
         required: true, 
         ref: 'Users'
     },
+    appl_id: {
+        type: Schema.Types.ObjectId,
+        required: true, 
+        ref: 'Applicants'
+    },
     date_of_appl:{
         type:Date,
         required: true,
         default: Date.now
     },
-    appl_rating:{
+    appl_rating:{ //given by recruiter if accepted
+        type: Number,
+        min: 0,
+        max: 5,
+    },
+    job_rating:{    // given by applicant to the job if accepted
         type: Number,
         min: 0,
         max: 5,

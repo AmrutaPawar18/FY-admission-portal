@@ -94,6 +94,7 @@ router.post("/apply", authA, async (req, res) => {
 				newApplication.appl_skills = appl.skills;
 				newApplication.appl_rating = appl.rating;
 				newApplication.appl_user_id = applId;
+                newApplication.appl_id = appl._id;
 			}
 			else{
                 console.log("hi")
@@ -144,13 +145,12 @@ router.post("/newProfile", authA, (req, res) => {
 
 // route: appl/updateProfile   
 // PRIVATE
-// POST request 
+// PATCH request 
 // Update profile 
-router.post("/updateProfile", authA, (req, res) => {
+router.patch("/updateProfile", authA, (req, res) => {
     const _id = req.user.id;
     const education = req.body.education;
     const skills = req.body.skills;
-    const rating = req.body.rating;
     Applicant.updateOne({user_id: _id}, { $set: {education:education, skills:skills}})
         .then(savedPro => {
 
@@ -192,5 +192,34 @@ router.get("/applications", authA, (req, res) => {
             res.status(400).send(err);
         });
     });
+
+// route: appl/rate/:id
+// PRIVATE
+// POST request 
+// Save employee rating in db, update job rating
+router.post("/rate/:id", authA, async function(req, res) {
+
+    var id = req.user.id;   //applicant id
+    console.log(id)
+    var aId= req.params.id; //application id
+    var rating= req.body.rating;
+    
+    Application.findOneAndUpdate({_id: aId}, {$set:{job_rating:rating}},{new:true})
+        .then(pro => {
+            Application.aggregate([
+                {$match:{$and:[{job_rating:{$gt:0}}, {job_id:pro.job_id}]}},
+                {$group:{_id:"$job_id", rate: {$avg: "$job_rating"}}}
+            ])
+            .then(x=>{
+                console.log(x)
+                Job.findOneAndUpdate({_id:x[0]._id},{$set:{rating:x[0].rate}},{new:true})
+                    .then(p=>res.json(p))
+            })
+        })
+        .catch(err => {
+            res.status(400).send(err);
+        });
+    });
+
 
 module.exports = router;

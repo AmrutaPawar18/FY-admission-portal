@@ -99,9 +99,9 @@ router.delete("/deleteJob/:id", authR, async (req, res) => {
 
 // route: recr/updateProfile   
 // PRIVATE
-// POST request 
+// PATCH request 
 // Update profile 
-router.post("/updateProfile", authR, (req, res) => {
+router.patch("/updateProfile", authR, (req, res) => {
     const _id = req.user.id;
     const contact = req.body.contact;
     const bio = req.body.bio;
@@ -160,6 +160,7 @@ router.post("/applications", authR, function(req, res) {
     var jobId = req.body.id
     Application.find({job_id: jobId, stage:{$ne: "Rejected"}})
         .populate('appl_user_id','fname lname')
+        .populate('appl_id','rating')
         .then(appls => {
             res.status(200).json(appls);
         })
@@ -181,6 +182,7 @@ router.post("/accept", authR, async function(req, res) {
     var applicationId = req.body.id;
     var appl_user_id = req.body.appl_user_id;
     const jobId = req.body.jobId;
+    var c= 0;
     await Application.updateOne({_id: applicationId}, {$set:{stage:"Accepted",doj:Date.now()}})
         .then(appl => {
         //    res.status(200).json(appl);
@@ -193,9 +195,11 @@ router.post("/accept", authR, async function(req, res) {
             return res.status(400).send(err)
     //    else res.status(200).json({mess:"Updated"})
     });
+
     await Job.findOneAndUpdate({_id:jobId}, {$inc : {'posn_filled': 1}},{new:true})
         .then(j => {
             if(j.posn_filled<j.maxPos){
+                c=1;
                 return res.status(200).json({mess:"Updated"})
             }
         })
@@ -203,11 +207,13 @@ router.post("/accept", authR, async function(req, res) {
             return res.status(400).send(err);
     });
     //reject all applications, return a message for recruiter
-    Application.updateMany({job_id:jobId, stage:{$ne:"Accepted"}},{$set: {stage: "Rejected"}},(err,result)=>{
-        if(err)
-            return res.status(400).send(err)
-        else res.status(200).json({mess:"All positions for this job have been filled!"})
-    })
+    if(c==0){
+        Application.updateMany({job_id:jobId, stage:{$ne:"Accepted"}},{$set: {stage: "Rejected"}},(err,result)=>{
+            if(err)
+                return res.status(400).send(err)
+            else res.status(200).json({mess:"All positions for this job have been filled!"})
+        })
+    }
 });
 
 
@@ -228,6 +234,70 @@ router.post("/shortlist", authR, function(req, res) {
             res.status(400).send(err);
         });
     });
+
+// route: recr/employees
+// PRIVATE
+// GET request 
+// Get employee details from db
+router.get("/employees", authR, function(req, res) {
+
+    var id = req.user.id;
+    Application.find({recr_id: id, stage:"Accepted"})
+        .populate('appl_user_id','fname lname')
+        .populate('appl_id','rating')
+        .then(pro => {
+            res.status(200).json(pro);
+        })
+        .catch(err => {
+            res.status(400).send(err);
+        });
+    });
+
+// route: recr/rate/:id
+// PRIVATE
+// POST request 
+// Save employee rating in db
+router.post("/rate/:id", authR, async function(req, res) {
+
+    var id = req.user.id;   //recruiter id
+    console.log(id)
+    var aId= req.params.id; //application id
+    var rating= req.body.rating;
+    
+    Application.findOneAndUpdate({_id: aId}, {$set:{appl_rating:rating}},{new:true})
+        .then(pro => {
+            Application.aggregate([
+                {$match:{$and:[{appl_rating:{$gt:0}}, {appl_user_id:pro.appl_user_id}]}},
+                {$group:{_id:"$appl_user_id", rate: {$avg: "$appl_rating"}}}
+            ])
+            .then(x=>{
+                console.log(x)
+                // console.log(pro.appl_user_id)
+                // console.log(typeof pro.appl_user_id);
+                // console.log(x[0]._id);
+                // console.log(x[0]._id===pro.appl_user_id)
+                // var y= x.filter(e => e._id===pro.appl_user_id)
+                // console.log(y)
+                Applicant.findOneAndUpdate({user_id:x[0]._id},{$set:{rating:x[0].rate}},{new:true})
+                    .then(p=>res.json(p))
+            })
+        })
+        .catch(err => {
+            res.status(400).send(err);
+        });
+    });
+
+router.put("/check", function(req,res){
+    var id=req.body.id
+    Application.aggregate([
+        {$match:{appl_rating:{$gt:0}}},
+        {$group:{_id:"$appl_user_id", rate: {$avg: "$appl_rating"}}}
+    ]).then(x=>{
+        var y= x.filter(e=>e._id==id)
+        Applicant.findOneAndUpdate({user_id:id},{$set:{rating:y[0].rate}})
+    .then(p=>res.json(p))})
+})
+
 
 
 module.exports = router;

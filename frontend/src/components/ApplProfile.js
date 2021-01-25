@@ -76,6 +76,7 @@ export default class Home extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            file:null,
             email:'',
             edit: false,
             fname:'',
@@ -98,6 +99,8 @@ export default class Home extends Component {
         this.handleClose= this.handleClose.bind(this);
         this.handleDiaSubmit = this.handleDiaSubmit.bind(this);
         this.onIntInputChange = this.onIntInputChange.bind(this);
+        this.uploadPic = this.uploadPic.bind(this);
+        this.onChange = this.onChange.bind(this);
     }
 
     async componentDidMount() {
@@ -212,7 +215,27 @@ export default class Home extends Component {
         this.setState({ pwd: event.target.value });
     }
 
-    onSubmit(e) {
+    onChange(e) {
+      this.setState({file:e.target.files});
+    }
+
+    uploadPic(e){
+      e.preventDefault();
+      const formData = new FormData();
+      formData.append('myfile',this.state.file);
+      const config = {
+          headers: {
+              'content-type': 'multipart/form-data'
+          }
+      };
+      axios.post("http://localhost:5000/appl/uploadPic",formData,config)
+          .then((response) => {
+              alert("The file is successfully uploaded");
+          }).catch((error) => {
+      });
+  }
+
+    async onSubmit(e) {
         e.preventDefault();
         if(!this.state.edit)
           this.setState({edit:true});
@@ -275,8 +298,25 @@ export default class Home extends Component {
 
           
           console.log(prof);
+          var c=0;
+          await axios.patch('http://localhost:5000/user/updateDetails', {lname:this.state.lname,fname:this.state.fname}, config)
+               .then(res => {
+                })
+               .catch(err => {
+                  if(err.response){
+                    if(err.response.data.error)
+                      alert(err.response.data.error)
+                    else
+                      alert(err.message);
+                  }
+                  
+                  else
+                    alert(err.message);  
+                  c=1;
+               });
+          if(c) return;
 
-          axios.post('http://localhost:5000/appl/updateProfile', prof, config)
+          axios.patch('http://localhost:5000/appl/updateProfile', prof, config)
                .then(res => {
                   alert("Updated");
                   this.setState({edit:false})
@@ -284,15 +324,15 @@ export default class Home extends Component {
                .catch(err => {
                   if(err.response){
                     if(err.response.data.error)
-                      console.log(err.response.data.error)
+                      alert(err.response.data.error)
                     else
-                      console.log(err.message);
+                      alert(err.message);
                   }
                   
                   else
-                    console.log(err.message);             
+                    alert(err.message);             
                });
-          }
+        }
     }
 
 render() {
@@ -360,6 +400,13 @@ render() {
               </Dialog>
 
 
+        <form style={classes.form} onSubmit={this.uploadPic} noValidate>
+        <Button color="primary">
+          <TextField label="Choose file" type="file" className="custom-file-input" name="myImage" onChange= {this.onChange} />
+        </Button>
+              {console.log(this.state.file)}
+              <button className="upload-button" type="submit">Upload to DB</button>
+        </form>
         
         <form style={classes.form} onSubmit={this.onSubmit} noValidate>
           <Grid container spacing={2}>
@@ -374,7 +421,7 @@ render() {
                 label="First Name"
                 autoFocus={this.state.edit}
                 value={this.state.fname}
-                onChange={this.onChangeFname}
+                onChange={this.onInputChange}
                 InputProps = {{
                   readOnly: !this.state.edit
                 }}
@@ -390,7 +437,7 @@ render() {
                 name="lname"
                 autoComplete="lname"
                 value={this.state.lname}
-                onChange={this.onChangeLname}
+                onChange={this.onInputChange}
                 InputProps = {{
                   readOnly: !this.state.edit
                 }}
@@ -406,9 +453,8 @@ render() {
                 name="email"
                 autoComplete="email"
                 value={this.state.email}
-                onChange={this.onInputChange}
                 InputProps = {{
-                  readOnly: false
+                  readOnly: true
                 }}
               />
             </Grid>

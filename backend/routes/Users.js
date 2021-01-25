@@ -36,9 +36,9 @@ router.get("/", auth, function(req, res) {
 
 // route: user/updateDetails  
 // PRIVATE
-// POST request 
+// PATCH request 
 // Update profile 
-router.post("/updateDetails", auth, (req, res)=> {
+router.patch("/updateDetails", auth, (req, res)=> {
     const fname= (req.body.fname);
     const lname = req.body.lname;
     const user_id = req.user.id;

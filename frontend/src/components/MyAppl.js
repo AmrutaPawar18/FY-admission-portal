@@ -15,6 +15,7 @@ import Divider from '@material-ui/core/Divider';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import IconButton from "@material-ui/core/IconButton";
 import InputAdornment from "@material-ui/core/InputAdornment";
+import Rating from '@material-ui/lab/Rating';
 
 import SearchIcon from "@material-ui/icons/Search";
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
@@ -28,8 +29,7 @@ class UsersList extends Component {
       this.state = {
         applications: [],
       };
-      this.renderIcon = this.renderIcon.bind(this);
-      this.sortChange = this.sortChange.bind(this);
+      this.addRating = this.addRating.bind(this);
   }
 
   componentDidMount() {
@@ -55,38 +55,32 @@ class UsersList extends Component {
          })
   }
 
-  sortChange(){
-/**
-*      Note that this is sorting only at front-end.
-*/
-    var array = this.state.users;
-    var flag = this.state.sortName;
-    array.sort(function(a, b) {
-      if(a.date != undefined && b.date != undefined){
-        return (1 - flag*2) * (new Date(a.date) - new Date(b.date));
+
+  addRating(newValue, a, event){
+    var token = localStorage.getItem('token');
+
+      // Headers
+      var config = {
+        headers: {
+          'Content-type': 'application/json'
+        }
       }
-      else{
-        return 1;
+
+      // If token, add to headers
+      if (token) {
+        config.headers['auth-tok'] = token;
       }
-    });
-    this.setState({
-      users:array,
-      sortName:!this.state.sortName,
-    })
+      axios.post(`http://localhost:5000/appl/rate/${a._id}`, {rating:newValue}, config)
+         .then(response => {
+            var temp= this.state.applications.map(x=> x._id===a._id?{...x, job_rating: newValue}:x);
+            this.setState({applications:temp});
+         })
+         .catch(function(error) {
+             console.log(error);
+         })
+
   }
 
-  renderIcon(){
-    if(this.state.sortName){
-      return(
-        <ArrowDownwardIcon/>
-      )
-    }
-    else{
-      return(
-        <ArrowUpwardIcon/>
-      )            
-    }
-  }
 
   render() {
     return (
@@ -103,7 +97,7 @@ class UsersList extends Component {
                     <TableCell> Salary</TableCell>
                     <TableCell>Application Stage</TableCell>
                     <TableCell>Date of joining</TableCell>
-                    <TableCell>Rate the job</TableCell>
+                    <TableCell>You rated the job</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -114,7 +108,14 @@ class UsersList extends Component {
                         <TableCell>{data.job_salary}</TableCell>
                         <TableCell>{data.stage}</TableCell>
                         <TableCell>{data.doj}</TableCell>
-                        <TableCell>stars</TableCell>
+                        <TableCell>
+                          <Rating
+                            name="simple-controlled"
+                            value={data.job_rating}
+                            onChange={(event, newValue) => {this.addRating(newValue,data,event)}}
+                            readOnly={data.job_rating}
+                          />
+                        </TableCell>
                       </TableRow>
                 ))}
                 </TableBody>

@@ -64,7 +64,8 @@ class UsersList extends Component {
         if (token) {
           config.headers['auth-tok'] = token;
         }
-        axios.post('http://localhost:5000/recr/applications', {id:this.props.location.data}, config)
+        console.log(this.props.match.params)
+        axios.post('http://localhost:5000/recr/applications', {id:this.props.match.params.jobId}, config)
              .then(response => {
               var array = response.data;
               array.sort(function(a, b) {
@@ -104,6 +105,8 @@ class UsersList extends Component {
             if(res.data.mess){
               alert(res.data.mess);
             }
+            var arr= this.state.applications.map(x=> x._id===a._id?{...x,stage:"Accepted"}:x);
+            this.setState({applications:arr})
          })
          .catch(function(error) {
              console.log(error);
@@ -173,8 +176,8 @@ class UsersList extends Component {
         }
         else if(sb ==="rating"){
           array.sort(function(a, b) {
-            if(a.appl_rating != undefined && b.appl_rating != undefined){
-                return (1 - flag*2) * (a.appl_rating - b.appl_rating);
+            if(a.appl_id.rating != undefined && b.appl_id.rating != undefined){
+                return (1 - flag*2) * (a.appl_id.rating - b.appl_id.rating);
             }
             else{
                 return 1;
@@ -298,13 +301,13 @@ class UsersList extends Component {
                                               />
                                             ))}</TableCell>
                                             <TableCell>{a.sop}</TableCell>
-                                            <TableCell>{a.rating}</TableCell>
+                                            <TableCell>{a.appl_id.rating}</TableCell>
                                             <TableCell>{a.stage}
                                               {a.stage==='Applied'?
                                                 <Button color="primary" onClick={(e)=>this.onShortlist(a._id,ind,e)}>
                                                   Shortlist
-                                                </Button>:
-                                                <Button color="primary" onClick={(e)=>this.onAccept(a,e)}>"Accept"</Button>}
+                                                </Button>:(a.stage==="Accepted"?null:
+                                                <Button color="primary" onClick={(e)=>this.onAccept(a,e)}>"Accept"</Button>)}
                                               {a.stage==='Accepted'?null:<Button color="secondary">Reject</Button>}
                                             </TableCell>
 

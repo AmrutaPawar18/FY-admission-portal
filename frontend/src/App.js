@@ -1,7 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 import React from 'react';
-import { BrowserRouter as Router, Route, Link} from "react-router-dom";
+import { BrowserRouter as Router, Route, Link, Switch} from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css"
 import Home from './components/Home.js'
 import acreateProfile from './components/RegPart2Appl.js'
@@ -14,24 +14,27 @@ import aProfile from './components/ApplProfile.js'
 import rProfile from './components/RecrProfile.js'
 import myAppl from './components/MyAppl.js'
 import ApplView from './components/ApplicationsView.js'
+import emp from './components/employees.js'
+import NotFound from './components/NotFound.js'
 
 function App() {
   return (
     <Router>
-      <div className="container">
-        
+      <Switch>
         <Route path="/" exact component={Home}/>
         <Route path="/register" component={Register}/>
         <Route path="/acreateProfile" component={acreateProfile}/>
         <Route path="/rcreateProfile" component={rcreateProfile}/>
         <Route path="/aDashboard" component={path}/>
         <Route path="/rDashboard" component={rDash}/>
-        <Route path="/applications" component={ApplView}/>
+        <Route path="/applications/:jobId" component={ApplView}/>
+        <Route path="/employees" component={emp}/>
         <Route path="/createJob" component={createJob}/>
         <Route path="/aProfile" component={aProfile}/>
         <Route path="/rProfile" component={rProfile}/>
         <Route path="/myApplications" component={myAppl}/>
-      </div>
+        <Route component={NotFound}/>
+      </Switch>
     </Router>
   );
 }
