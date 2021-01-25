@@ -32,6 +32,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
+import Fuse from 'fuse.js';
 
 import SearchIcon from "@material-ui/icons/Search";
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
@@ -51,7 +52,7 @@ class ApplDash extends Component {
             value:[20,1000],
             showSop:false,
             sop:'',
-            jobId:'',
+            job:{},
             maxSal:0,
             filtSal:false,
             filtType:false,
@@ -60,7 +61,8 @@ class ApplDash extends Component {
             duration:'',
             desc:1,
             recr_id:'',
-            mess:''
+            mess:'',
+            search:'',
         };
         this.renderIcon = this.renderIcon.bind(this);
         this.handleChange = this.handleChange.bind(this);
@@ -75,6 +77,7 @@ class ApplDash extends Component {
         this.sortJobs = this.sortJobs.bind(this);
         this.sortAlt = this.sortAlt.bind(this);   //on changing sort section dropdowns
         this.loadJobs = this.loadJobs.bind(this);
+        this.fuzzySearch = this.fuzzySearch.bind(this);
     }
 
     loadJobs(){
@@ -132,12 +135,22 @@ class ApplDash extends Component {
       this.setState({
         sop:'',
         showSop:false,
-        jobId:''
+        jobId:'',
+        jobTitle:'',
+        jobSal:'',
+        job:{}
+
       });
     }
 
     handleDiaSubmit(e){
       e.preventDefault();
+
+      var arr = this.state.sop.split(' ');
+      if(arr.length>250){
+        alert("Sop exceeded 250 words!");
+        return;
+      }
       var token = localStorage.getItem('token');
 
         // Headers
@@ -152,7 +165,14 @@ class ApplDash extends Component {
           config.headers['auth-tok'] = token;
         }
 
-        var data = {sop:this.state.sop, job_id:this.state.jobId, recr_id:this.state.recr_id}
+        var data = {
+          sop:this.state.sop, 
+          job_id:this.state.job._id, 
+          recr_id:this.state.job.recr_id,
+          job_title:this.state.job.title,
+          job_salary:this.state.job.salary,
+          job_type:this.state.job.type
+        }
 
       axios.post('http://localhost:5000/appl/apply',data, config)
           .then(response => {
@@ -160,7 +180,7 @@ class ApplDash extends Component {
             this.setState({
               showSop:false,
               sop:'',
-              jobId:''
+              job:{}
             });
             this.loadJobs();
             alert("Submitted application!");
@@ -180,12 +200,12 @@ class ApplDash extends Component {
         this.filtJobs();
     }
 
-    apply(id, recr_id,e){
+    apply(job, e){
       if(this.state.mess!==''){
         alert(this.state.mess);
         return;
       }
-      this.setState({jobId:id, showSop:true, recr_id:recr_id})
+      this.setState({showSop:true, job:job})
     }
 
     async filtAlt(e){
@@ -212,8 +232,49 @@ class ApplDash extends Component {
       if(this.state.filtDur){
         arr = arr.filter((job, i)=>(job.duration<this.state.duration))
       }
+      
+        if (this.state.search) {
+          const fuse = new Fuse(arr, {
+            keys: [
+                'title'
+            ]
+          });
+            var filteredListings = fuse.search(this.state.search)
+            arr = filteredListings.map((listing) => listing.item)
+        }
       this.setState({
         filtjobs:arr
+      })
+    }
+
+    fuzzySearch(e){
+      var arr = this.state.jobs;
+      var text = e.target.value;
+      
+      var filt = [];
+      if(this.state.filtSal){
+        var n = this.state.value
+        arr = arr.filter((job, i)=>(job.salary>=n[0] && job.salary<=n[1]))
+      }
+      if(this.state.filtType){
+        arr = arr.filter((job, i)=>(job.type===this.state.type))
+      }
+      if(this.state.filtDur){
+        arr = arr.filter((job, i)=>(job.duration<this.state.duration))
+      }
+      
+        if (text) {
+          const fuse = new Fuse(arr, {
+            keys: [
+                'title'
+            ]
+          });
+            var filteredListings = fuse.search(text)
+            arr = filteredListings.map((listing) => listing.item)
+        }
+      this.setState({
+        filtjobs:arr,
+        search: text
       })
     }
 
@@ -337,7 +398,7 @@ class ApplDash extends Component {
                 labelPlacement="bottom"
               />
           <Slider
-                max={this.state.maxSal?this.state.maxSal+100:10000}
+                max={this.state.maxSal?this.state.maxSal+500:10000}
                 value={this.state.value}
                 onChange={this.handleChange}
                 onChangeCommitted={this.filtJobs}
@@ -444,6 +505,26 @@ class ApplDash extends Component {
         </Grid>
         </Paper>
           </Grid>
+          <Grid item xs={12} md={9} lg={9}>
+            <List component="nav" aria-label="mailbox folders">
+                <TextField 
+                id="standard-basic" 
+                name="search"
+                label="Search title" 
+                fullWidth={true}   
+                InputProps={{
+                    endAdornment: (
+                        <InputAdornment>
+                            <IconButton>
+                                <SearchIcon />
+                            </IconButton>
+                        </InputAdornment>
+                    )}}
+                value={this.state.search}
+                onChange={this.fuzzySearch}
+                />
+            </List>
+            </Grid>
           
           </Grid>
           <Grid container>
@@ -481,7 +562,7 @@ class ApplDash extends Component {
                             ):(
                             <Button
                               size="small"
-                              onClick={(e)=>this.apply(job._id, job.recr_id._id,e)}
+                              onClick={(e)=>this.apply(job,e)}
                               style={{backgroundColor:'green', color:'white'}}>
                               Apply
                             </Button>
@@ -490,7 +571,7 @@ class ApplDash extends Component {
                         <TableCell>{job.skills.map((data)=>(
                           <Chip
                             key={data.key}
-                            label={data.label}
+                            label={data.name}
                           />
                         ))}</TableCell>
                         <TableCell>{job.type}</TableCell>

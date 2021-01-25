@@ -17,20 +17,20 @@ const secret = require('../config/keys').secret;
 // Load models
 const Job = require("../models/Job");
 const Recruiter = require("../models/Recruiter");
+const Application = require("../models/Application")
 
 // GET request 
-// Getting all the jobs
-router.get("/", function(req, res) {
-    Job.find(function(err, jobs) {
-		if (err) {
-			console.log(err);
-		} else {
-			res.json(jobs);
-		}
+// Getting all active jobs (jobs with max positions not filled(maxPos>posn_filled))
+router.get("/", authR, function(req, res) {
+    var id= req.user.id
+    Job.find({recr_id:id})//, $expr:{$gt:["$maxPos","$posn_filled"]}})
+        .then(jobs => {
+		  var filt = jobs.filter(job=>(job.maxPos>job.posn_filled))
+		  res.json(filt);
 	})
 });
 
-// route: recr/createJob    
+// route: recr/newJob    
 // PRIVATE
 // POST request 
 // Add a job to db
@@ -47,19 +47,90 @@ router.post("/newJob", authR, (req, res) => {
         });
     });
 
-// route: recr/jobs
+// route: recr/updateJob  
+// PRIVATE
+// POST request 
+// Update job details 
+router.post("/updateJob", authR, (req, res) => {
+    const _id = req.user.id;
+    const maxAppl = req.body.maxAppl;
+    const maxPos = req.body.maxPos;
+    const jobId = req.body.id;
+    const deadline = req.body.deadline;
+    Job.updateOne({_id: jobId}, { 
+        $set: {
+            maxPos:maxPos, 
+            maxAppl:maxAppl, 
+            deadline:deadline}})
+        .then(savedJob => {
+
+            res.status(200).json(savedJob);
+        })
+        .catch(err => {
+            res.status(400).send(err);
+        });
+    });
+
+// route: recr/deleteJob  
+// PRIVATE
+// DELETE request 
+// Delete job
+router.delete("/deleteJob/:id", authR, async (req, res) => {
+    const _id = req.user.id;
+    const jobId = req.params.id;
+    await Job.deleteOne({_id: jobId})
+        .then(out => {
+
+        //    res.status(200).json(out);
+        })
+        .catch(err => {
+            return res.status(400).send(err);
+        });
+
+    // update stage of all applications with this job id
+    Application.updateMany({job_id:jobId},{$set: {stage: "Job deleted"}},(err,result)=>{
+        if(err)
+            res.status(400).send(err)
+        else res.status(200).json({mess:"Deleted"})
+    })
+
+    });
+
+
+// route: recr/updateProfile   
+// PRIVATE
+// POST request 
+// Update profile 
+router.post("/updateProfile", authR, (req, res) => {
+    const _id = req.user.id;
+    const contact = req.body.contact;
+    const bio = req.body.bio;
+    Recruiter.updateOne({user_id: _id}, { $set: {contact:contact, bio:bio}})
+        .then(savedPro => {
+
+            res.status(200).json(savedPro);
+        })
+        .catch(err => {
+            res.status(400).send(err);
+        });
+    });
+
+
+// route: recr/profile
 // PRIVATE
 // GET request 
-// Getting all the jobs
-router.get("/jobs", function(req, res) {
+// Get recruiter profile details from db
+router.get("/profile", authR, function(req, res) {
 
-    Job.findOne({recr_id: req.user.id})
-    	.then(jobs=> {
-			res.status(200).json(jobs);
-		})
-    	.catch(err =>{
-    		res.status(400).send(err);
-    	});
+    var id = req.user.id;
+    Recruiter.findOne({user_id: id})
+        .populate('user_id','email fname lname')
+        .then(pro => {
+            res.status(200).json(pro);
+        })
+        .catch(err => {
+            res.status(400).send(err);
+        });
     });
 
 // route: recr/newProfile   
@@ -78,5 +149,85 @@ router.post("/newProfile", authR, (req, res) => {
             res.status(400).send(err);
         });
     });
+
+// route: recr/applications
+// PRIVATE
+// POST request 
+// Get non-rejected applications for a job from db
+router.post("/applications", authR, function(req, res) {
+
+    var id = req.user.id;
+    var jobId = req.body.id
+    Application.find({job_id: jobId, stage:{$ne: "Rejected"}})
+        .populate('appl_user_id','fname lname')
+        .then(appls => {
+            res.status(200).json(appls);
+        })
+        .catch(err => {
+            res.status(400).send(err);
+        });
+    });
+
+// route: recr/accept
+// PRIVATE
+// POST request 
+// Accept an applicant, 
+// reject all other applications of that applicant, 
+//incr posn_filled of job
+//(if now all positions have been filled then reject all applications for this job)
+router.post("/accept", authR, async function(req, res) {
+
+    var id = req.user.id;
+    var applicationId = req.body.id;
+    var appl_user_id = req.body.appl_user_id;
+    const jobId = req.body.jobId;
+    await Application.updateOne({_id: applicationId}, {$set:{stage:"Accepted",doj:Date.now()}})
+        .then(appl => {
+        //    res.status(200).json(appl);
+        })
+        .catch(err => {
+            return res.status(400).send(err);
+        });
+    await Application.updateMany({appl_user_id:appl_user_id, _id:{$ne:applicationId}},{$set: {stage: "Rejected"}},(err,result)=>{
+        if(err)
+            return res.status(400).send(err)
+    //    else res.status(200).json({mess:"Updated"})
+    });
+    await Job.findOneAndUpdate({_id:jobId}, {$inc : {'posn_filled': 1}},{new:true})
+        .then(j => {
+            if(j.posn_filled<j.maxPos){
+                return res.status(200).json({mess:"Updated"})
+            }
+        })
+        .catch(err=> {
+            return res.status(400).send(err);
+    });
+    //reject all applications, return a message for recruiter
+    Application.updateMany({job_id:jobId, stage:{$ne:"Accepted"}},{$set: {stage: "Rejected"}},(err,result)=>{
+        if(err)
+            return res.status(400).send(err)
+        else res.status(200).json({mess:"All positions for this job have been filled!"})
+    })
+});
+
+
+// route: recr/shortlist
+// PRIVATE
+// POST request 
+// Shortlist an applicant
+router.post("/shortlist", authR, function(req, res) {
+
+    var id = req.user.id;
+    var applicationId = req.body.id;
+    Application.findOneAndUpdate({_id: applicationId}, {$set:{stage:"Shortlisted"}},{new:true})
+        .populate('appl_user_id','fname lname')
+        .then(appl => {
+            res.status(200).json(appl);
+        })
+        .catch(err => {
+            res.status(400).send(err);
+        });
+    });
+
 
 module.exports = router;

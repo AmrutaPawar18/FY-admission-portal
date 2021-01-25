@@ -65,16 +65,16 @@ export default class Home extends Component {
     }
 
     componentDidMount() {
-      var tok = localStorage.getItem('token');
+     /* var tok = localStorage.getItem('token');
 
       if(tok){
         var role = localStorage.getItem('role');
         if(role==='Applicant')
-          this.props.history.push('/acompleteProfile');
+          this.props.history.push('/aDashboard');
         else if(role === 'Recruiter')
-          this.props.history.push('/createJob');
+          this.props.history.push('/rDashboard');
 
-      }
+      }*/
     }
 
     onChangeUsername(event) {
@@ -108,14 +108,28 @@ export default class Home extends Component {
 
         axios.post('http://localhost:5000/user/register', newUser)
              .then(res => {
-                alert("Created account\t" + res.data.name+"\nPlease login to continue");
+                alert("Created basic account for " + res.data.name+". Please continue to complete your profile"); 
+                localStorage.setItem('token', res.data.token);
+                var role = res.data.role;
+                localStorage.setItem('role', role);
+                if(role==='Applicant')
+                  this.props.history.push('/acreateProfile');
+                else if(role === 'Recruiter')
+                  this.props.history.push('/rcreateProfile');
                 console.log(res);
                 this.setState({fname:"",lname:"", email:"", pwd:"", role:""})
 
             })
              .catch(err => {
-                alert(err.error);
-                console.log(err.error);
+                if(err.response){
+                    if(err.response.data.error)
+                      alert(err.response.data.error)
+                    else
+                      alert(err.message);
+                  }
+                  
+                  else
+                    alert(err.message);  
              })
              ;
    }

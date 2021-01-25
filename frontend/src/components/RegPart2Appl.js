@@ -236,13 +236,13 @@ export default class Home extends Component {
                .catch(err => {
                   if(err.response){
                     if(err.response.data.error)
-                      console.log(err.response.data.error)
+                      alert(err.response.data.error)
                     else
-                      console.log(err.message);
+                      alert(err.message);
                   }
                   
                   else
-                    console.log(err.message);             
+                    alert(err.message);            
                });
           
     }
@@ -285,7 +285,6 @@ render() {
                     fullWidth
                     type="number"
                     value={this.state.start_year}
-                    defaultValue={(new Date()).getFullYear()}
                     error={(parseInt(this.state.start_year)>=1900)?false:true}
                     onChange={this.onIntInputChange}
                   />

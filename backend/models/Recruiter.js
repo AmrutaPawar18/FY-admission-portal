@@ -6,7 +6,8 @@ const RecruiterSchema = new Schema({
 	user_id: {
 		type: Schema.Types.ObjectId,
         required: true, 
-        ref: 'Users'
+        ref: 'Users',
+        unique: true
 	},
     contact: {
     	type: String,
@@ -14,7 +15,6 @@ const RecruiterSchema = new Schema({
     },
     bio: {
     	type: String,
-    	maxLength: 250
     }
 });
 

@@ -2,6 +2,9 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const stages = ['Applied', 'Shortlisted', 'Accepted', 'Rejected','Job deleted'];
+const jobType = [
+  'Full-time', 'Part-time', 'Work from Home'
+]
 
 // Create Schema
 const ApplicationSchema = new Schema({
@@ -10,6 +13,19 @@ const ApplicationSchema = new Schema({
         required: true, 
         ref: 'Jobs'
 	},
+    job_title:{
+        type:String,
+        required:true,
+    },
+    job_salary:{
+        type:Number,
+        required:true,
+    },
+    job_type:{
+        type: String,
+        required: true,
+        enum: jobType
+    },
     recr_id: {
         type: Schema.Types.ObjectId,
         required: true,

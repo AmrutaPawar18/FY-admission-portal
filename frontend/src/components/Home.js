@@ -69,7 +69,7 @@ export default class Home extends Component {
     }
 
     async componentDidMount() {
-      var tok = localStorage.getItem('token');
+      /*var tok = localStorage.getItem('token');
       var ck = false;
       var config = {
           headers: {
@@ -105,13 +105,13 @@ export default class Home extends Component {
           console.log(role)
           if(role==='Applicant'){
             console.log("Applicant")
-            this.props.history.push('/path');
+            this.props.history.push('/aDashboard');
           }
           else if(role === 'Recruiter')
-            this.props.history.push('/createJob');
+            this.props.history.push('/rDashboard');
 
         }
-      }
+      }*/
 
     }
 
@@ -131,12 +131,20 @@ export default class Home extends Component {
                 var role = res.data.role;
                 localStorage.setItem('role', role);
                 if(role==='Applicant')
-                  this.props.history.push('/path');
+                  this.props.history.push('/aDashboard');
                 else if(role === 'Recruiter')
-                  this.props.history.push('/createJob');
+                  this.props.history.push('/rDashboard');
               })
              .catch(err => {
-                console.log(err)
+                if(err.response){
+                    if(err.response.data.error)
+                      alert(err.response.data.error)
+                    else
+                      alert(err.message);
+                  }
+                  
+                  else
+                    alert(err.message);  
              })
              ;
     }

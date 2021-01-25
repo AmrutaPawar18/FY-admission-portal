@@ -31,8 +31,9 @@ router.get("/", authA, async function(req, res) {
     await Application.find({appl_user_id: ObjectId(user_id)})
         .then(applicat => {
             applications= applicat;
-            var filt = applicat.filter(a=>{ a.stage==='Applied' || a.stage==='Shortlisted'});
-            var accepted = applicat.filter(a=>{a.stage==='Accepted'});
+            var filt = applicat.filter(a=>(a.stage==='Applied' || a.stage==='Shortlisted'));
+            var accepted = applicat.filter(a=> a.stage==='Accepted');
+        //    console.log(filt)
             if(filt.length===10){
                 mess = "Sorry, you can't apply to more jobs as you reached application limit!"
             }
@@ -40,7 +41,6 @@ router.get("/", authA, async function(req, res) {
                 mess = "You can't apply to more jobs as you have been accepted in a job already"
             }
         })
-            console.log(applications)
     Job.find()
     	.populate('recr_id', 'email fname lname')
     	.then(jobs=> {
@@ -61,7 +61,6 @@ router.get("/", authA, async function(req, res) {
             }
             else{
                 f = filt.map((j)=>{
-                    console.log(j)
                     if(applications.some(applicati=>
                         applicati.job_id.toString()===j._id.toString())){
                         return({...j._doc,applied:true});
@@ -72,7 +71,6 @@ router.get("/", authA, async function(req, res) {
                 })
             }
 
-            console.log(f)
 			res.status(200).json({f,mess});
 		})
     	.catch(err =>{
@@ -133,6 +131,7 @@ router.post("/apply", authA, async (req, res) => {
 router.post("/newProfile", authA, (req, res) => {
 	const newProfile = new Applicant(req.body);
 	newProfile.user_id = req.user.id;
+    console.log(newProfile)
 	console.log(req.user);
 	newProfile.save()
         .then(pro => {
@@ -186,7 +185,6 @@ router.get("/applications", authA, (req, res) => {
     var id = req.user.id;
     Application.find({appl_user_id: id})
         .populate('recr_id','email fname lname')
-        .populate('job_id','title salary')
         .then(a => {
             res.status(200).json(a);
         })

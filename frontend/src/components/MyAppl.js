@@ -109,9 +109,9 @@ class UsersList extends Component {
                 <TableBody>
                   {this.state.applications.map((data,ind) => (
                       <TableRow key={ind}>
-                        <TableCell>{data.job_id.title}</TableCell>
+                        <TableCell>{data.job_title}</TableCell>
                         <TableCell>{data.recr_id.fname}</TableCell>
-                        <TableCell>{data.job_id.salary}</TableCell>
+                        <TableCell>{data.job_salary}</TableCell>
                         <TableCell>{data.stage}</TableCell>
                         <TableCell>{data.doj}</TableCell>
                         <TableCell>stars</TableCell>

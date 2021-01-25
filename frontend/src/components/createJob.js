@@ -99,7 +99,7 @@ export default class Home extends Component {
         this.setState({skills:''});
         return;
       }
-      arr.push({key: val.toLowerCase(), label:e.target.value});
+      arr.push({key: val.toLowerCase(), name:e.target.value});
     //  console.log(arr);
       this.setState({chips: arr, skills:''});
 
@@ -116,7 +116,7 @@ export default class Home extends Component {
 
     onSubmit(e) {
         e.preventDefault();
-        var arr = this.state.chips.map((it)=> (it.label))
+        var arr = this.state.chips.map((it)=> (it.name))
       //  console.log(this.state.chips);
         const newJob = {
             
@@ -181,7 +181,7 @@ export default class Home extends Component {
                   chips:[],
                   email: '',
                 });
-                this.props.history.push('/dashboard');
+                this.props.history.push('/rDashboard');
 
             })
              .catch(err => {
@@ -323,7 +323,7 @@ export default class Home extends Component {
                       <Grid item key={data.key}>
                         <Chip
                           key={data.key}
-                          label={data.label}
+                          label={data.name}
                           onDelete={()=>this.handleDelete(data)}
                         />
                       </Grid>))
