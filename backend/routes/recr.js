@@ -3,6 +3,22 @@ var router = express.Router();
 var bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+
+const nodemailer = require('nodemailer'); 
+  
+  
+let mailTransporter = nodemailer.createTransport({ 
+    service: 'gmail', 
+    auth: { 
+        user: 'headlesshuntorg@gmail.com', 
+        pass: 'Heading2hunt'
+    } 
+}); 
+  
+
+  
+
+
 const auth = require('../middleware/auth.js');
 
 const authR = require('../middleware/authRecr.js');
@@ -127,6 +143,8 @@ router.get("/profile", authR, function(req, res) {
         .populate('user_id','email fname lname')
         .then(pro => {
             res.status(200).json(pro);
+            
+
         })
         .catch(err => {
             res.status(400).send(err);
@@ -159,7 +177,7 @@ router.post("/applications", authR, function(req, res) {
     var id = req.user.id;
     var jobId = req.body.id
     Application.find({job_id: jobId, stage:{$ne: "Rejected"}})
-        .populate('appl_user_id','fname lname')
+        .populate('appl_user_id','fname lname email')
         .populate('appl_id','rating')
         .then(appls => {
             res.status(200).json(appls);
@@ -179,14 +197,20 @@ router.post("/applications", authR, function(req, res) {
 router.post("/accept", authR, async function(req, res) {
 
     var id = req.user.id;
+    var recr_name = req.user.name;
+    console.log(recr_name);
+
     var applicationId = req.body.id;
     var appl_user_id = req.body.appl_user_id;
+    var email = req.body.appl_email
+    console.log(email)
     const jobId = req.body.jobId;
     var c= 0;
     await Application.updateOne({_id: applicationId}, {$set:{stage:"Accepted",doj:Date.now()}})
         .then(appl => {
         //    res.status(200).json(appl);
         })
+
         .catch(err => {
             return res.status(400).send(err);
         });
@@ -214,6 +238,21 @@ router.post("/accept", authR, async function(req, res) {
             else res.status(200).json({mess:"All positions for this job have been filled!"})
         })
     }
+
+        let mailDetails = { 
+            from: 'headlesshuntorg@gmail.com', 
+            to: email, 
+            subject: 'Congratulations!', 
+            text: `You have been accepted by ${recr_name}`
+        }; 
+
+            mailTransporter.sendMail(mailDetails, function(err, data) { 
+                if(err) { 
+                    console.log(err); 
+                } else { 
+                    console.log('Email sent successfully'); 
+                } 
+            }); 
 });
 
 
@@ -224,6 +263,8 @@ router.post("/accept", authR, async function(req, res) {
 router.post("/shortlist", authR, function(req, res) {
 
     var id = req.user.id;
+    console.log(req.user);
+    console.log("hi")
     var applicationId = req.body.id;
     Application.findOneAndUpdate({_id: applicationId}, {$set:{stage:"Shortlisted"}},{new:true})
         .populate('appl_user_id','fname lname')

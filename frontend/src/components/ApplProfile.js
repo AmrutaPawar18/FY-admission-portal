@@ -77,6 +77,8 @@ export default class Home extends Component {
         super(props);
         this.state = {
             file:null,
+            previewSrc:'',
+            IsPreviewAvailable:false,
             email:'',
             edit: false,
             fname:'',
@@ -215,8 +217,24 @@ export default class Home extends Component {
         this.setState({ pwd: event.target.value });
     }
 
-    onChange(e) {
-      this.setState({file:e.target.files});
+    async onChange(e) {
+      console.log("file\n"+e.target.files[0])
+      let uploadedFile=e.target.files[0];
+      var prev=''
+      const fileReader = new FileReader();
+      fileReader.onload = () => {
+        prev=fileReader.result;
+      };
+
+      fileReader.readAsDataURL(uploadedFile);
+      console.log(prev)
+      console.log("match\n"+uploadedFile.name.match(/\.(jpeg|jpg|png)$/))
+      this.setState({
+        file:uploadedFile,
+        previewSrc:prev,
+        IsPreviewAvailable:uploadedFile.name.match(/\.(jpeg|jpg|png)$/)
+      })
+      
     }
 
     uploadPic(e){
@@ -403,12 +421,29 @@ render() {
 
 
         <form style={classes.form} onSubmit={this.uploadPic} noValidate>
-        <Button color="primary">
-          <TextField label="Choose file" type="file" className="custom-file-input" name="myImage" onChange= {this.onChange} />
+        <Button variant="contained" color="primary" component="label">
+          Upload
+          <input type="file" hidden onChange={this.onChange}/>
         </Button>
+        {this.state.previewSrc ? (
+    this.state.IsPreviewAvailable ? (
+      <div className="image-preview">
+        <img className="preview-image" src={this.state.previewSrc} alt="Preview" />
+      </div>
+    ) : (
+      <div className="preview-message">
+        <p>No preview available for this file</p>
+      </div>
+    )
+  ) : (
+    <div className="preview-message">
+      <p>Image preview will be shown here after selection</p>
+    </div>
+  )}
               {console.log(this.state.file)}
               <button className="upload-button" type="submit">Upload to DB</button>
         </form>
+
         
         <form style={classes.form} onSubmit={this.onSubmit} noValidate>
           <Grid container spacing={2}>
@@ -491,7 +526,6 @@ render() {
                   variant="filled"
                   required
                     fullWidth
-                  name="start_year"
                   label="Start Year"
                   id="start_year"
                   value={edu.start_year}
@@ -512,7 +546,6 @@ render() {
                   <Grid item xs={6} md={3}>
                 <TextField
                   variant="filled"
-                  name="end_year"
                     fullWidth
                   label="End Year"
                   id="end_year"

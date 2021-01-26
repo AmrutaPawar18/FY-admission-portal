@@ -79,7 +79,7 @@ router.post("/register", (req, res) => {
             newUser.save()
                 .then(user => {
                     jwt.sign(
-                        {id:user.id, role:user.role},
+                        {id:user.id, role:user.role,name: user.fname+" "+user.lname},
                         secret,
                         (err, token) =>{
                             if(err) throw err;
@@ -140,7 +140,7 @@ router.post("/login", (req, res) => {
 
                 //matched, send jwt to frontend
                 jwt.sign(
-                    {id:user.id, role:user.role},
+                    {id:user.id, role:user.role,name: user.fname+" "+user.lname},
                     secret,
                     {expiresIn: 25200 },
                     (err, token) =>{

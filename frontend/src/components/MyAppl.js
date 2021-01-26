@@ -58,9 +58,10 @@ class UsersList extends Component {
   }
 
 
-  addRating(newValue, a, event){
+  addRating(a, event){
     var token = localStorage.getItem('token');
-
+    var newValue = event.target.value;
+    console.log(a)
       // Headers
       var config = {
         headers: {
@@ -88,6 +89,7 @@ class UsersList extends Component {
     return (
       <div>
       <ApplNavbar/>
+      <h4> My Applications</h4>
         <Grid container>
             
           <Grid item xs={12} >
@@ -112,12 +114,11 @@ class UsersList extends Component {
                         <TableCell>{data.stage}</TableCell>
                         <TableCell>{moment(data.doj).format('DD-MM-YYYY')}</TableCell>
                         <TableCell>
-                          <Rating
-                            name="simple-controlled"
+                          {(data.stage==="Rejected"||data.stage==="Job deleted")?null:<Rating
                             value={data.job_rating}
-                            onChange={(event, newValue) => {this.addRating(newValue,data,event)}}
+                            onChange={(event) => {this.addRating(data,event)}}
                             readOnly={data.job_rating}
-                          />
+                          />}
                         </TableCell>
                       </TableRow>
                 ))}

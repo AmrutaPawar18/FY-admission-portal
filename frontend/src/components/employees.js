@@ -280,7 +280,6 @@ class UsersList extends Component {
                                             <TableCell>{a.appl_id.rating}</TableCell>
                                             <TableCell>
                                               <Rating
-                                                name="simple-controlled"
                                                 value={a.appl_rating}
                                                 onChange={(event, newValue) => {this.addRating(newValue,a,event)}}
                                                 readOnly={a.appl_rating}

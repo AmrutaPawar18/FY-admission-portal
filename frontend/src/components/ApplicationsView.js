@@ -101,10 +101,20 @@ class UsersList extends Component {
         if (token) {
           config.headers['auth-tok'] = token;
         }
-     axios.post('http://localhost:5000/recr/accept', {id:a._id, appl_user_id:a.appl_user_id,jobId:a.job_id}, config)
+        var data = {
+          id:a._id, 
+          appl_user_id:a.appl_user_id._id,
+          jobId:a.job_id,
+          appl_email:a.appl_user_id.email,
+        }
+        console.log(data)
+        console.log(a)
+     axios.post('http://localhost:5000/recr/accept', data, config)
          .then(res => {
             if(res.data.mess){
               alert(res.data.mess);
+              if(res.data.mess==="All positions for this job have been filled!")
+                this.props.history.push('/rDashboard');
             }
             var arr= this.state.applications.map(x=> x._id===a._id?{...x,stage:"Accepted"}:x);
             this.setState({applications:arr})
@@ -287,6 +297,7 @@ class UsersList extends Component {
                                 </TableHead>
                                 <TableBody>
                                     {this.state.applications.map((a,ind) => (
+
                                         <TableRow key={a._id}>
                                             <TableCell>{a.appl_user_id.fname+" "+a.appl_user_id.lname}</TableCell>
                                             <TableCell>{a.appl_skills.map((data)=>(

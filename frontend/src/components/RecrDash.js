@@ -184,9 +184,8 @@ export default class RecrDash extends React.Component{
                 variant="outlined"
                 required
                 fullWidth
-                id="maxAppl"
+                id={"maxAppl"+j._id}
                 label="Maximum Applications"
-                name="maxAppl"
                 type="number"
                 autoComplete="maxAppl"
                 value={j.maxAppl}
@@ -203,9 +202,8 @@ export default class RecrDash extends React.Component{
                 variant="outlined"
                 required
                 fullWidth
-                id="maxPos"
+                id={"maxPos"+j._id}
                 label="Maximum Positions"
-                name="maxPos"
                 type="number"
                 autoComplete="maxPos"
                 value={j.maxPos}
@@ -222,8 +220,7 @@ export default class RecrDash extends React.Component{
                 variant="outlined"
                 required
                 fullWidth
-                id="date"
-                name="date"
+                id={"date"+j._id}
                 label="Application deadline date"
                 type="date"
                 value = {j.deadline.split(' ')[0]}
@@ -242,8 +239,7 @@ export default class RecrDash extends React.Component{
                 variant="outlined"
                 required
                 fullWidth
-                id="time"
-                name="time"
+                id={"time"+j._id}
                 label="Application deadline time"
                 type="time"
                 value = {j.deadline.split(' ')[1]}
