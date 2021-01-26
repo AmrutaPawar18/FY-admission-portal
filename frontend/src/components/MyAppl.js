@@ -114,11 +114,11 @@ class UsersList extends Component {
                         <TableCell>{data.stage}</TableCell>
                         <TableCell>{moment(data.doj).format('DD-MM-YYYY')}</TableCell>
                         <TableCell>
-                          {(data.stage==="Rejected"||data.stage==="Job deleted")?null:<Rating
+                          {(data.stage==="Accepted")?<Rating
                             value={data.job_rating}
                             onChange={(event) => {this.addRating(data,event)}}
                             readOnly={data.job_rating}
-                          />}
+                          />:null}
                         </TableCell>
                       </TableRow>
                 ))}
