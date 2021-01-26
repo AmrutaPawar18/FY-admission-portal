@@ -22,7 +22,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Divider from '@material-ui/core/Divider';
 import Chip from '@material-ui/core/Chip';
 import Autocomplete, {createFilterOptions} from '@material-ui/lab/Autocomplete';
-
+import ApplNavbar from './ApplNavbar.js';
 import axios from 'axios';
 
 /**/
@@ -34,7 +34,7 @@ function Copyright() {
     <Typography variant="body2" color="textSecondary" align="center">
       {'Copyright © '}
       <Link color="inherit" href="">
-        Your Website
+        Headless Hunt
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -338,6 +338,8 @@ export default class Home extends Component {
 render() {
 
   return (
+    <div>
+    <ApplNavbar name={this.state.fname+" "+this.state.lname}/>
     <Container component="main">
       <CssBaseline/>
       <Paper style={classes.paper}>
@@ -687,6 +689,7 @@ render() {
         </form>
       </Paper>
     </Container>
+    </div>
   );
 }
 }

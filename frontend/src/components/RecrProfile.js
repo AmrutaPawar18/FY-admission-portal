@@ -14,6 +14,7 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import RecrNavbar from './RecrNavbar.js';
 
 import axios from 'axios';
 
@@ -183,6 +184,8 @@ export default class Home extends Component {
 render() {
 
   return (
+    <div>
+    <RecrNavbar/>
     <Container component="main">
       <CssBaseline/>
       <Paper style={classes.paper}>
@@ -290,6 +293,7 @@ render() {
         <Copyright />
       </Box>
     </Container>
+    </div>
   );
 }
 }

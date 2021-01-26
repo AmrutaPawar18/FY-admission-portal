@@ -26,7 +26,9 @@ import Radio from '@material-ui/core/Radio';
 import Rating from '@material-ui/lab/Rating';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import { BrowserRouter as Router, Route, Link} from "react-router-dom";
+import moment from 'moment'
 
+import RecrNavbar from './RecrNavbar.js';
 import SearchIcon from "@material-ui/icons/Search";
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
@@ -206,7 +208,10 @@ class UsersList extends Component {
 
     render() {
         return (
+          <div>
+          <RecrNavbar/>
             <div style={{flexGrow:1,display:'flex', flexDirection: 'column', justifyContent:'center', margin:10}}>
+              
               <Typography component="h1" variant="h4" style={{marginBottom:10}}>
                 Employees
               </Typography>
@@ -268,7 +273,7 @@ class UsersList extends Component {
                                     {this.state.emp.map((a,ind) => (
                                         <TableRow key={a._id}>
                                             <TableCell>{a.appl_user_id.fname+" "+a.appl_user_id.lname}</TableCell>
-                                            <TableCell>{a.doj}</TableCell>
+                                            <TableCell>{moment(a.doj).format('DD-MM-YYYY')}</TableCell>
                                             <TableCell>{a.job_title}</TableCell>
                                             <TableCell>{a.job_type}</TableCell>
                                             <TableCell>Salary</TableCell>
@@ -290,6 +295,7 @@ class UsersList extends Component {
                     </Grid>    
                 </Grid>            
             </div>
+          </div>
         )
     }
 }

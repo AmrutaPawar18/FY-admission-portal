@@ -16,6 +16,8 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import IconButton from "@material-ui/core/IconButton";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import Rating from '@material-ui/lab/Rating';
+import ApplNavbar from './ApplNavbar.js';
+import moment from 'moment'
 
 import SearchIcon from "@material-ui/icons/Search";
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
@@ -85,6 +87,7 @@ class UsersList extends Component {
   render() {
     return (
       <div>
+      <ApplNavbar/>
         <Grid container>
             
           <Grid item xs={12} >
@@ -107,7 +110,7 @@ class UsersList extends Component {
                         <TableCell>{data.recr_id.fname}</TableCell>
                         <TableCell>{data.job_salary}</TableCell>
                         <TableCell>{data.stage}</TableCell>
-                        <TableCell>{data.doj}</TableCell>
+                        <TableCell>{moment(data.doj).format('DD-MM-YYYY')}</TableCell>
                         <TableCell>
                           <Rating
                             name="simple-controlled"

@@ -33,6 +33,8 @@ import Select from '@material-ui/core/Select';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import Fuse from 'fuse.js';
+import ApplNavbar from './ApplNavbar.js';
+import moment from 'moment'
 
 import SearchIcon from "@material-ui/icons/Search";
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
@@ -344,6 +346,7 @@ class ApplDash extends Component {
     render() {
       return (
         <div style={{flexGrow:1,display:'flex', flexDirection: 'column'}}>
+          <ApplNavbar/>
           <Typography component="h1" variant="h4" style={{marginBottom:10}}>
           Dashboard
         </Typography>
@@ -549,7 +552,7 @@ class ApplDash extends Component {
                       <TableRow key={job._id}>
                         <TableCell>{job.title}</TableCell>
                         <TableCell>{job.recr_id.fname+" "+job.recr_id.lname+" @ "+job.recr_id.email}</TableCell>
-                        <TableCell>{job.date_of_post}</TableCell>
+                        <TableCell>{moment(job.date_of_post).format('DD-MM-YYYY HH:mm')}</TableCell>
                         <TableCell>
                           {job.deadline}
                           {(job.applied)?(<Chip label="Applied"/>):((job.maxAppl-job.appl_got)<=0)||((job.maxPos-job.posn_filled)<=0)?

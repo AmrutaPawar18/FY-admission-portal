@@ -19,6 +19,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 
+import RecrNavbar from './RecrNavbar.js';
 import {InputTag} from './Tag.js';
 
 
@@ -208,6 +209,7 @@ export default class Home extends Component {
       if(!this.state.authorized)
         return(
           <Container component="main" maxWidth="xs">
+
             <CssBaseline />
             <div style={classes.paper}>
               
@@ -219,6 +221,8 @@ export default class Home extends Component {
           )
 
         return (
+        <div>
+            <RecrNavbar/>
             <Container component="main" maxWidth="md">
       <CssBaseline />
       <div style={classes.paper}>
@@ -423,6 +427,7 @@ export default class Home extends Component {
       </div>
            
            </Container>
+           </div>
         )
     }
 }

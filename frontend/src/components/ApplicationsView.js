@@ -25,10 +25,11 @@ import Select from '@material-ui/core/Select';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import { BrowserRouter as Router, Route, Link} from "react-router-dom";
-
+import RecrNavbar from './RecrNavbar.js';
 import SearchIcon from "@material-ui/icons/Search";
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
+import moment from 'moment'
 
 
 class UsersList extends Component {
@@ -227,6 +228,7 @@ class UsersList extends Component {
     render() {
         return (
             <div>
+            <RecrNavbar/>
               <Grid container>
                 <Grid item xs={12} md={3} lg={3}>
                     <List component="nav" aria-label="mailbox folders">
@@ -293,7 +295,7 @@ class UsersList extends Component {
                                                 label={data.name}
                                               />
                                             ))}</TableCell>
-                                            <TableCell>{a.date_of_appl}</TableCell>
+                                            <TableCell>{moment(a.date_of_appl).format('DD-MM-YYYY')}</TableCell>
                                             <TableCell>{a.appl_edu.map((data, ind)=>(
                                               <Chip
                                                 key={ind}

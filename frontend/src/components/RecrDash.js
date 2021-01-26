@@ -9,6 +9,9 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import TextField from '@material-ui/core/TextField';
 import { BrowserRouter as Router, Route, Link} from "react-router-dom";
+import moment from 'moment'
+
+import RecrNavbar from './RecrNavbar.js';
 
 const classes={
 	paper: {
@@ -156,8 +159,12 @@ export default class RecrDash extends React.Component{
 
 	render(){
 		return(
+			<div>
+			<RecrNavbar/>
 			<Container component="main" style={classes.paper}>
+			
 			<h4>My Job Listings</h4>
+			<Button><Link to="/createJob">+ Create a job</Link></Button>
 			{this.state.jobs.length?"":"You don't have any active jobs"}
 			<Grid container spacing={2}>
 			{this.state.jobs.map((j,ind)=>(
@@ -165,7 +172,7 @@ export default class RecrDash extends React.Component{
 			<Card className={classes.root}>
       <CardContent>
         <Typography title={classes.title} color="textSecondary" gutterBottom>
-          {j.date_of_post}
+          {moment(j.date_of_post).format('DD-MM-YYYY HH:mm')}
         </Typography>
         <Typography variant="h5" component="h2">
           {j.title}
@@ -288,6 +295,7 @@ export default class RecrDash extends React.Component{
     </Grid>))}
     </Grid>
     </Container>
+    </div>
     
 		)
 	}

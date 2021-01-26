@@ -13,19 +13,17 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import { GoogleLogin } from 'react-google-login';
 
 import axios from 'axios';
 
-/**/
-
-var hi = []
 
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
       {'Copyright © '}
       <Link color="inherit" href="">
-        Your Website
+        Headless Hunt
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -66,6 +64,8 @@ export default class Home extends Component {
         this.onChangeEmail = this.onChangeEmail.bind(this);
         this.onChangePwd = this.onChangePwd.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
+        this.googleSuccess = this.googleSuccess.bind(this);
+        this.googleError = this.googleError.bind(this);
     }
 
     async componentDidMount() {
@@ -149,6 +149,35 @@ export default class Home extends Component {
              ;
     }
 
+    async googleSuccess(resp){
+      console.log(resp);
+      axios.post('http://localhost:5000/user/login', {email:resp.profileObj.email, password:resp.googleId})
+         .then(res => {alert("Welcome\t" + res.data.name);
+            localStorage.setItem('token', res.data.token);
+            var role = res.data.role;
+            localStorage.setItem('role', role);
+            if(role==='Applicant')
+              this.props.history.push('/aDashboard');
+            else if(role === 'Recruiter')
+              this.props.history.push('/rDashboard');
+          })
+         .catch(err => {
+            if(err.response){
+                if(err.response.data.error)
+                  alert(err.response.data.error)
+                else
+                  alert(err.message);
+              }
+              
+              else
+                alert(err.message);  
+         })
+         ;
+    }
+    googleError(e){
+      console.log(e);
+    }
+
 render() {
 
   return (
@@ -201,7 +230,13 @@ render() {
 
           <Grid container style={{paddingTop:10}}>
             <Grid item xs>
-              
+              <GoogleLogin
+            clientId="531568689114-5rg3ebcc6ciphbv6ged7m54lbj0gine5.apps.googleusercontent.com"
+            
+            onSuccess={this.googleSuccess}
+            onFailure={this.googleError}
+            cookiePolicy="single_host_origin"
+          />
             </Grid>
             <Grid item>
               <Link href="/register" variant="body2">

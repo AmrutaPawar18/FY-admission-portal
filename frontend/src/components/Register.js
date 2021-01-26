@@ -17,6 +17,12 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import { GoogleLogin } from 'react-google-login';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 
 ///styles
@@ -24,7 +30,6 @@ const classes = {
   paper: {
     marginTop: 10,
       justifyContent: 'center',
-      height: '70vh',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -54,7 +59,8 @@ export default class Home extends Component {
             email: '',
             role:"",
             fname:"",
-            lname:""
+            lname:"",
+            open:false,
         }
         this.onChangeUsername = this.onChangeUsername.bind(this);
         this.onChangePwd = this.onChangePwd.bind(this);
@@ -62,6 +68,8 @@ export default class Home extends Component {
         this.onChangeFname = this.onChangeFname.bind(this);
         this.onChangeLname = this.onChangeLname.bind(this);
         this.onChangeEmail = this.onChangeEmail.bind(this);
+        this.googleSuccess = this.googleSuccess.bind(this);
+        this.googleError = this.googleError.bind(this);
     }
 
     componentDidMount() {
@@ -134,9 +142,92 @@ export default class Home extends Component {
              ;
    }
 
+   async googleSuccess(resp){
+     // console.log(resp);
+      const newUser = {
+            fname: resp.profileObj.givenName,
+            lname: resp.profileObj.familyName,
+            email: resp.profileObj.email,
+            password: resp.profileObj.googleId,
+            date_of_reg: Date.now(),
+            role: this.state.role
+        }
+        console.log(newUser);
+
+        axios.post('http://localhost:5000/user/register', newUser)
+             .then(res => {
+                alert("Created basic account for " + res.data.name+". Please continue to complete your profile"); 
+                localStorage.setItem('token', res.data.token);
+                var role = res.data.role;
+                localStorage.setItem('role', role);
+                if(role==='Applicant')
+                  this.props.history.push('/acreateProfile');
+                else if(role === 'Recruiter')
+                  this.props.history.push('/rcreateProfile');
+                console.log(res);
+                this.setState({fname:"",lname:"", email:"", pwd:"", role:"",open:false})
+
+            })
+             .catch(err => {
+                if(err.response){
+                    if(err.response.data.error)
+                      alert(err.response.data.error)
+                    else
+                      alert(err.message);
+                  }
+                  
+                  else
+                    alert(err.message);  
+             })
+             ;
+    }
+    googleError(e){
+      console.log(e);
+    }
+
     render() {
         return (
             <Container component="main" maxWidth="xs">
+
+            <Dialog open={this.state.open} onClose={this.handleClose} aria-labelledby="form-dialog-title">
+                <DialogTitle id="form-dialog-title">Add Education</DialogTitle>
+                <DialogContent>
+                  <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                  <FormControl variant="outlined" required fullWidth>
+                <InputLabel id="select-label">Role</InputLabel>
+                <Select
+                  labelId="select-label"
+                  id="select"
+                  value={this.state.role}
+                  onChange={(e)=>this.setState({role: e.target.value})}
+                  label="Role"
+                >
+                  <MenuItem value="">
+                    <em>None</em>
+                  </MenuItem>
+                  <MenuItem value={"Applicant"}>Applicant</MenuItem>
+                  <MenuItem value={"Recruiter"}>Recruiter</MenuItem>
+                </Select>
+              </FormControl>
+                  </Grid>
+                 
+                  </Grid>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={()=>this.setState({open:false})} color="primary">
+                    Cancel
+                  </Button>
+                  <GoogleLogin
+                    clientId="531568689114-5rg3ebcc6ciphbv6ged7m54lbj0gine5.apps.googleusercontent.com"
+                    
+                    onSuccess={this.googleSuccess}
+                    onFailure={this.googleError}
+                    cookiePolicy="single_host_origin"
+                  />
+                </DialogActions>
+              </Dialog>
+
       <CssBaseline />
       <div style={classes.paper}>
         <Avatar style={classes.avatar}>
@@ -229,6 +320,16 @@ export default class Home extends Component {
           >
             Sign Up
           </Button>
+          <Button
+            fullWidth
+            variant="contained"
+            color="primary"
+            style={classes.submit}
+            onClick={(e)=>this.setState({open:true})}
+          >
+            Sign up with Google
+          </Button>
+          
           <Grid container justify="flex-end">
             <Grid item>
               <Link href="/" variant="body2">

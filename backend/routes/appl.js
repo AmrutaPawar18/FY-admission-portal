@@ -221,5 +221,7 @@ router.post("/rate/:id", authA, async function(req, res) {
         });
     });
 
+router.post("/uploadPic")
+
 
 module.exports = router;
