@@ -36,6 +36,18 @@ const ApplicantSchema = new Schema({
         min: 0,
         max: 5,
     },
+    pic_path: {
+      type: String,
+    },
+    pic_mimetype: {
+      type: String,
+    },
+    cv_path: {
+      type: String,
+    },
+    cv_mimetype: {
+      type: String,
+    }
 });
 
 module.exports = Applicant = mongoose.model("Applicants", ApplicantSchema);

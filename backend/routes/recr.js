@@ -115,13 +115,13 @@ router.delete("/deleteJob/:id", authR, async (req, res) => {
 
 // route: recr/updateProfile   
 // PRIVATE
-// PATCH request 
+// PUT request 
 // Update profile 
-router.patch("/updateProfile", authR, (req, res) => {
+router.put("/updateProfile", authR, (req, res) => {
     const _id = req.user.id;
     const contact = req.body.contact;
     const bio = req.body.bio;
-    Recruiter.updateOne({user_id: _id}, { $set: {contact:contact, bio:bio}})
+    Recruiter.updateOne({user_id: _id}, {user_id:_id,contact:contact, bio:bio},{new:true,upsert:true})
         .then(savedPro => {
 
             res.status(200).json(savedPro);
@@ -164,7 +164,13 @@ router.post("/newProfile", authR, (req, res) => {
             res.status(200).json(pro);
         })
         .catch(err => {
-            res.status(400).send(err);
+            x="";
+            for(e in err.errors){
+                x=x+err.errors[e].message+"\n";
+
+            }
+            
+            res.status(400).json({err, error:x});
         });
     });
 

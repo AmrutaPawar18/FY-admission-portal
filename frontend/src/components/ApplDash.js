@@ -199,7 +199,8 @@ class ApplDash extends Component {
     }
     async onCheckChange(event) {
         await this.setState({ [event.target.name]: event.target.checked });
-        this.filtJobs();
+        await this.filtJobs();
+        this.sortJobs();
     }
 
     apply(job, e){
@@ -383,7 +384,7 @@ class ApplDash extends Component {
         </Dialog>
 
 
-        <Grid container spacing={1}>
+        <Grid container spacing={1} style={{padding:10}}>
         <Grid item xs={12} md={9}>
           <Paper style={{textAlign:'center', marginBottom:10, padding:10}}>
           <Grid container spacing={1}>

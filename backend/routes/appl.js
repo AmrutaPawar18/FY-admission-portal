@@ -139,19 +139,25 @@ router.post("/newProfile", authA, (req, res) => {
             res.status(200).json(pro);
         })
         .catch(err => {
-            res.status(400).send(err);
+            x="";
+                    for(e in err.errors){
+                        x=x+err.errors[e].message+"\n";
+
+                    }
+                    
+                    res.status(400).json({err, error:x});
         });
     });
 
 // route: appl/updateProfile   
 // PRIVATE
-// PATCH request 
+// PUT request 
 // Update profile 
-router.patch("/updateProfile", authA, (req, res) => {
+router.put("/updateProfile", authA, (req, res) => {
     const _id = req.user.id;
     const education = req.body.education;
     const skills = req.body.skills;
-    Applicant.updateOne({user_id: _id}, { $set: {education:education, skills:skills}})
+    Applicant.findOneAndUpdate({user_id: _id}, {user_id: _id, education:education, skills:skills}, {new:true, upsert:true})
         .then(savedPro => {
 
             res.status(200).json(savedPro);

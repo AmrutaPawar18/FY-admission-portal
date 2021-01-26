@@ -11,7 +11,8 @@ const RecruiterSchema = new Schema({
 	},
     contact: {
     	type: String,
-    	required: true
+    	required: true,
+        match: [/^\d{10}$/, 'Invalid contact number']
     },
     bio: {
     	type: String,

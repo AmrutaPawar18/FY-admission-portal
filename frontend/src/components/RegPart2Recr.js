@@ -109,7 +109,7 @@ export default class Home extends Component {
                     if(err.response.data.error)
                       alert(err.response.data.error)
                     else
-                      alert(err.message);
+                      alert(err.response.message);
                   }
                   
                   else

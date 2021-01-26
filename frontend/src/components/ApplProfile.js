@@ -101,8 +101,6 @@ export default class Home extends Component {
         this.handleClose= this.handleClose.bind(this);
         this.handleDiaSubmit = this.handleDiaSubmit.bind(this);
         this.onIntInputChange = this.onIntInputChange.bind(this);
-        this.uploadPic = this.uploadPic.bind(this);
-        this.onChange = this.onChange.bind(this);
     }
 
     async componentDidMount() {
@@ -122,15 +120,17 @@ export default class Home extends Component {
 
         await axios.get('http://localhost:5000/appl/profile', config)
              .then(res => {
-              console.log(res.data);
+              console.log(res.data.pic_path);
               this.setState({
                 fname: res.data.user_id.fname,
                 lname: res.data.user_id.lname,
                 email: res.data.user_id.email,
                 education: res.data.education,
                 skills: res.data.skills,
-                rating: res.data.rating
+                rating: res.data.rating,
+                pic: res.data.pic_path
               })
+
             })
              .catch(err=>{
               if(err.response){
@@ -217,42 +217,6 @@ export default class Home extends Component {
         this.setState({ pwd: event.target.value });
     }
 
-    async onChange(e) {
-      console.log("file\n"+e.target.files[0])
-      let uploadedFile=e.target.files[0];
-      var prev=''
-      const fileReader = new FileReader();
-      fileReader.onload = () => {
-        prev=fileReader.result;
-      };
-
-      fileReader.readAsDataURL(uploadedFile);
-      console.log(prev)
-      console.log("match\n"+uploadedFile.name.match(/\.(jpeg|jpg|png)$/))
-      this.setState({
-        file:uploadedFile,
-        previewSrc:prev,
-        IsPreviewAvailable:uploadedFile.name.match(/\.(jpeg|jpg|png)$/)
-      })
-      
-    }
-
-    uploadPic(e){
-      e.preventDefault();
-      const formData = new FormData();
-      formData.append('myfile',this.state.file);
-      const config = {
-          headers: {
-              'content-type': 'multipart/form-data'
-          }
-      };
-      axios.post("http://localhost:5000/appl/uploadPic",formData,config)
-          .then((response) => {
-              alert("The file is successfully uploaded");
-          }).catch((error) => {
-      });
-  }
-
     async onSubmit(e) {
         e.preventDefault();
         if(!this.state.edit)
@@ -334,7 +298,7 @@ export default class Home extends Component {
                });
           if(c) return;
 
-          axios.patch('http://localhost:5000/appl/updateProfile', prof, config)
+          axios.put('http://localhost:5000/appl/updateProfile', prof, config)
                .then(res => {
                   alert("Updated");
                   this.setState({edit:false})
@@ -420,31 +384,9 @@ render() {
               </Dialog>
 
 
-        <form style={classes.form} onSubmit={this.uploadPic} noValidate>
-        <Button variant="contained" color="primary" component="label">
-          Upload
-          <input type="file" hidden onChange={this.onChange}/>
-        </Button>
-        {this.state.previewSrc ? (
-    this.state.IsPreviewAvailable ? (
-      <div className="image-preview">
-        <img className="preview-image" src={this.state.previewSrc} alt="Preview" />
-      </div>
-    ) : (
-      <div className="preview-message">
-        <p>No preview available for this file</p>
-      </div>
-    )
-  ) : (
-    <div className="preview-message">
-      <p>Image preview will be shown here after selection</p>
-    </div>
-  )}
-              {console.log(this.state.file)}
-              <button className="upload-button" type="submit">Upload to DB</button>
-        </form>
-
         
+        
+                <img src={`http://localhost:5000/${this.state.pic}`} alt="Profile Image" style={{height:250,width:250, marginBottom:10}}/>
         <form style={classes.form} onSubmit={this.onSubmit} noValidate>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>

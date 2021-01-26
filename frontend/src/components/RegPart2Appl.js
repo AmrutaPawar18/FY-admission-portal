@@ -81,6 +81,11 @@ export default class Home extends Component {
             insti_name:'',
             start_year:(new Date()).getFullYear(),
             end_year:'',
+            file:null,
+            previewSrc:'',
+            IsPreviewAvailable:false,
+            openFile:false,
+            cv:null,
 
         }
         this.onSubmit = this.onSubmit.bind(this);
@@ -89,6 +94,9 @@ export default class Home extends Component {
         this.handleClose= this.handleClose.bind(this);
         this.handleDiaSubmit = this.handleDiaSubmit.bind(this);
         this.onIntInputChange = this.onIntInputChange.bind(this);
+        this.uploadPic = this.uploadPic.bind(this);
+        this.onChange = this.onChange.bind(this);
+        this.oncvChange = this.oncvChange.bind(this);
     }
 
     componentDidMount() {
@@ -229,9 +237,7 @@ export default class Home extends Component {
 
           axios.post('http://localhost:5000/appl/newProfile', prof, config)
                .then(res => {
-                  alert("Added!");
-                  this.setState({edit:false});
-                  this.props.history.push("/aDashboard")
+                  this.setState({edit:false,openFile:true});
                 })
                .catch(err => {
                   if(err.response){
@@ -246,6 +252,97 @@ export default class Home extends Component {
                });
           
     }
+
+
+    async onChange(e) {
+      console.log("file\n"+e.target.files[0])
+      let uploadedFile=e.target.files[0];
+      var prev=''
+      const fileReader = new FileReader();
+      fileReader.onload = () => {
+        prev=fileReader.result;
+      };
+
+      fileReader.readAsDataURL(uploadedFile);
+      console.log(prev)
+      console.log("match\n"+uploadedFile.name.match(/\.(jpeg|jpg|png)$/))
+      this.setState({
+        file:uploadedFile,
+        previewSrc:prev,
+        IsPreviewAvailable:uploadedFile.name.match(/\.(jpeg|jpg|png)$/)
+      })
+      
+    }
+
+    async oncvChange(e) {
+      console.log("file\n"+e.target.files[0])
+      let uploadedFile=e.target.files[0];
+      var prev=''
+      const fileReader = new FileReader();
+      fileReader.onload = () => {
+        prev=fileReader.result;
+      };
+
+      fileReader.readAsDataURL(uploadedFile);
+      console.log(prev)
+      console.log("match\n"+uploadedFile.name.match(/\.(jpeg|jpg|png)$/))
+      this.setState({
+        cv:uploadedFile,
+      })
+      
+    }
+
+    async uploadPic(e){
+      e.preventDefault();
+      // const formData = new FormData();
+      // formData.append('myfile',this.state.file);
+      // const config = {
+      //     headers: {
+      //         'content-type': 'multipart/form-data'
+      //     }
+      // };
+      // axios.post("http://localhost:5000/appl/uploadPic",formData,config)
+      //     .then((response) => {
+      //         alert("The file is successfully uploaded");
+      //     }).catch((error) => {
+      // });
+
+      try {
+        const { title, description } = this.state;
+        if (1 ||(title.trim() !== '' && description.trim() !== '')) {
+          if (this.state.file) {
+            const formData = new FormData();
+            formData.append('file', this.state.file);
+            formData.append('what', 'pic');
+            formData.append('cv', this.state.cv);
+            var token = localStorage.getItem('token');
+
+          // Headers
+            var config = {
+            headers: {
+                'Content-type': 'multipart/form-data'
+              }
+            }
+            // If token, add to headers
+            if (token) {
+              config.headers['auth-tok'] = token;
+            }
+            await axios.post('http://localhost:5000/file/upload', formData, 
+              config
+            );
+
+                  this.props.history.push("/aDashboard")
+          } else {
+            alert('Please select a file to add.');
+          }
+        } else {
+          alert('Please enter all the field values.');
+        }
+      } catch (error) {
+        error.response && alert(error.response.data);
+      }
+  }
+
 
 render() {
   console.log(this.state.predSkills);
@@ -311,7 +408,6 @@ render() {
                   </Button>
                 </DialogActions>
               </Dialog>
-
 
         
         <form style={classes.form} onSubmit={this.onSubmit} noValidate>
@@ -520,6 +616,84 @@ render() {
           </Button>
 
         </form>
+
+
+            <Dialog open={this.state.openFile} onClose={()=>this.setState({openFile:false})} onExited={()=>this.props.history.push('/aDashboard')} aria-labelledby="form-dialog-title">
+                <DialogTitle id="form-dialog-title">Add Education</DialogTitle>
+                <DialogContent>
+                
+
+                <Button variant="contained" color="primary" component="label">
+                  Choose CV file
+                  <input type="file" hidden onChange={this.oncvChange}/>
+                </Button>
+                {this.state.cv ? (
+              <div className="preview-message">
+                <p>{this.state.cv.name}</p>
+              </div>
+            
+            ) : (
+            <div className="preview-message">
+              <p>File name will be shown here after selection</p>
+            </div>
+            )}
+
+
+                  <Button variant="contained" color="primary" component="label">
+                  Choose profile picture file
+                  <input type="file" hidden onChange={this.onChange}/>
+                </Button>
+                {this.state.file ? (
+            this.state.IsPreviewAvailable ? (
+              <div className="image-preview">
+                <p>{this.state.file.name}</p>
+                <img className="preview-image" src={URL.createObjectURL(this.state.file)} alt="Preview" style={{height:250,width:250}}/>
+              </div>
+            ) : (
+              <div className="preview-message">
+                <p>{this.state.file.name}</p>
+                <p>No preview available for this file. Pls select a png, jpg or jpeg file</p>
+              </div>
+            )
+            ) : (
+            <div className="preview-message">
+              <p>Image preview will be shown here after selection</p>
+            </div>
+            )}
+                </DialogContent>
+                <DialogActions>
+                 
+                  <Button variant="contained" color="primary" className="upload-button" type="submit" onClick={this.uploadPic}>
+                  Upload to Database
+                  </Button>
+                </DialogActions>
+              </Dialog>
+            {//   <form style={classes.form} onSubmit={this.uploadPic} noValidate>
+            //     <Button variant="contained" color="primary" component="label">
+            //       Choose file
+            //       <input type="file" hidden onChange={this.onChange}/>
+            //     </Button>
+            //     {this.state.file ? (
+            // this.state.IsPreviewAvailable ? (
+            //   <div className="image-preview">
+            //     <p>{this.state.file.name}</p>
+            //     <img className="preview-image" src={URL.createObjectURL(this.state.file)} alt="Preview" style={{height:250,width:250}}/>
+            //   </div>
+            // ) : (
+            //   <div className="preview-message">
+            //     <p>{this.state.file.name}</p>
+            //     <p>No preview available for this file. Pls select a png,jpg or jpeg file</p>
+            //   </div>
+            // )
+            // ) : (
+            // <div className="preview-message">
+            //   <p>Image preview will be shown here after selection</p>
+            // </div>
+            // )}
+            //           {console.log(this.state.file)}
+            //           <Button variant="contained" color="primary" className="upload-button" type="submit">Upload to Database</Button>
+            //     </form>
+}
       </Paper>
     </Container>
   );

@@ -161,7 +161,7 @@ export default class Home extends Component {
                   c=1;
                });
           if(c) return;
-          axios.patch('http://localhost:5000/recr/updateProfile', prof, config)
+          axios.put('http://localhost:5000/recr/updateProfile', prof, config)
                .then(res => {
                   alert("Updated");
                   this.setState({edit:false})
