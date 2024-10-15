@@ -1,38 +1,18 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const stages = ['Applied', 'Shortlisted', 'Accepted', 'Rejected','Job deleted'];
-const jobType = [
-  'Full-time', 'Part-time', 'Work from Home'
-]
+const stages = ['Submitted', 'Under Review', 'Approved', 'Documents Verified', 'Fees Paid', 'Accepted', 'Rejected'];
 
 // Create Schema
 const ApplicationSchema = new Schema({
-	job_id: {
+	course_id: {
 		type: Schema.Types.ObjectId,
         required: true, 
-        ref: 'Jobs'
+        ref: 'Courses'
 	},
-    job_title:{
+    course_title:{
         type:String,
         required:true,
-    },
-    job_salary:{
-        type:Number,
-        required:true,
-    },
-    job_type:{
-        type: String,
-        required: true,
-        enum: jobType
-    },
-    recr_id: {
-        type: Schema.Types.ObjectId,
-        required: true,
-        ref: 'Users'
-    },
-    doj:{
-        type:Date,
     },
     appl_user_id: {
     	type: Schema.Types.ObjectId,
@@ -49,32 +29,15 @@ const ApplicationSchema = new Schema({
         required: true,
         default: Date.now
     },
-    appl_rating:{ //given by recruiter if accepted
-        type: Number,
-        min: 0,
-        max: 5,
-    },
-    job_rating:{    // given by applicant to the job if accepted
-        type: Number,
-        min: 0,
-        max: 5,
-    },
     appl_edu: {
-        type : Array,
-    },
-    appl_skills:{
         type : Array,
     },
     stage:{
         type: String,
         enum: stages,
-        default: 'Applied',
+        default: 'Submitted',
         required: true
-    },
-    sop: {
-    	type: String,
-    	required: true
     }
 });
 
-module.exports = Recruiter = mongoose.model("Applications", ApplicationSchema);
+module.exports = Application = mongoose.model("Applications", ApplicationSchema);

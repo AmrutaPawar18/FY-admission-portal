@@ -13,7 +13,7 @@ function authAppl(req, res, next){
 	try{
 		//verify token
 		const decode = jwt.verify(tok, secret);
-		if(decode.role!=="Recruiter"){
+		if(decode.role!=="Admin"){
 			throw Error("Not authorized to access this page")	
 		}
 		else{

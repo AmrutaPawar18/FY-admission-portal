@@ -13,40 +13,54 @@ const educationSchema = new Schema({
     end_year: {
         type: Number,
         default:null
+    },
+    percentage: {
+        type: Number,
+        required: true
     }
 })
 // Create Schema
 const ApplicantSchema = new Schema({
-    
     user_id: {
         type: Schema.Types.ObjectId,
         required: true, 
         ref: 'Users'
     },
+    mName: {
+        type: String,
+        required: true
+    },
+    dob: {
+        type: Date,
+        required: true
+    },
+    address: {
+        type: String,
+        required: true
+    },
+    contact: {
+        type: Number,
+        required: true
+    },
     education: {
         type:Array,
         required: true
     },
-    skills: {
-        type: Array,
+    merit_no: {
+        type: Number,
         required: true
     },
-    rating: {
-        type: Number,
-        min: 0,
-        max: 5,
-    },
-    pic_path: {
+    ssc_cert_path: {
       type: String,
     },
-    pic_mimetype: {
+    ssc_cert_mimetype: {
       type: String,
     },
-    cv_path: {
-      type: String,
+    hsc_cert_path: {
+    type: String,
     },
-    cv_mimetype: {
-      type: String,
+    hsc_cert_mimetype: {
+    type: String,
     }
 });
 

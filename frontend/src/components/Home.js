@@ -107,7 +107,7 @@ export default class Home extends Component {
             console.log("Applicant")
             this.props.history.push('/aDashboard');
           }
-          else if(role === 'Recruiter')
+          else if(role === 'Admin')
             this.props.history.push('/rDashboard');
 
         }
@@ -132,7 +132,7 @@ export default class Home extends Component {
                 localStorage.setItem('role', role);
                 if(role==='Applicant')
                   this.props.history.push('/aDashboard');
-                else if(role === 'Recruiter')
+                else if(role === 'Admin')
                   this.props.history.push('/rDashboard');
               })
              .catch(err => {
@@ -158,7 +158,7 @@ export default class Home extends Component {
             localStorage.setItem('role', role);
             if(role==='Applicant')
               this.props.history.push('/aDashboard');
-            else if(role === 'Recruiter')
+            else if(role === 'Admin')
               this.props.history.push('/rDashboard');
           })
          .catch(err => {

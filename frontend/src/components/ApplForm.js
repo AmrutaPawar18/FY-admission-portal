@@ -29,18 +29,6 @@ import axios from 'axios';
 
 var hi = []
 
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="">
-        Headless Hunt
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
 const classes = {
     paper: {
       padding:'5%', 
@@ -71,79 +59,82 @@ const conf = {
 }
 const filter = createFilterOptions(conf);
   
-export default class Home extends Component {
+class ApplForm extends Component {
     
     constructor(props) {
         super(props);
         this.state = {
-            file:null,
+            fname: '',
+            mname: '',
+            lname: '',
+            dob: '',
+            course_title: '',
+            courses: [{key:"Computer",name:"Computer Engineering"},{key:"IT",name:"Information Technology"},
+                      {key:"ExTC", name:"Electronics & Telecommunications"}, {key:"Electronics",name:"Electronics Engineering"},
+                      {key:"Electrical",name:"Electrical Engineering"}, {key:"Mechanical",name:"Mechanical Engineering"},
+                      {key:"Production",name:"Production Engineering"}, {key:"Civil",name:"Civil Engineering"},
+                      {key:"Textile",name:"Textile Engineering"}],
+            contact: '',
+            address: '',
             previewSrc:'',
             IsPreviewAvailable:false,
             email:'',
             edit: false,
-            fname:'',
-            lname:'',
             education:[],
-            skills:[],
-            rating:0,
             open:false,
             insti_name:'',
             start_year:(new Date()).getFullYear(),
-            end_year:'',
-            predSkills:[{key:"html",name:"HTML"},{key:"css",name:"CSS"},{key:"js",name:"JS"}],
-
+            end_year: '',
+            perc: ''
         }
         this.onChangeEmail = this.onChangeEmail.bind(this);
         this.onChangePwd = this.onChangePwd.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.onInputChange = this.onInputChange.bind(this);
         this.onEduChange = this.onEduChange.bind(this);
+        this.onChangeAddress = this.onChangeAddress.bind(this);
         this.handleClose= this.handleClose.bind(this);
         this.handleDiaSubmit = this.handleDiaSubmit.bind(this);
         this.onIntInputChange = this.onIntInputChange.bind(this);
     }
 
-    async componentDidMount() {
-      var token = localStorage.getItem('token');
+    // async componentDidMount() {
+    //   var token = localStorage.getItem('token');
 
-        // Headers
-        var config = {
-          headers: {
-            'Content-type': 'application/json'
-          }
-        }
+    //     // Headers
+    //     var config = {
+    //       headers: {
+    //         'Content-type': 'application/json'
+    //       }
+    //     }
 
-        // If token, add to headers
-        if (token) {
-          config.headers['auth-tok'] = token;
-        }
+    //     // If token, add to headers
+    //     if (token) {
+    //       config.headers['auth-tok'] = token;
+    //     }
 
-        await axios.get('http://localhost:5000/appl/profile', config)
-             .then(res => {
-              console.log(res.data.pic_path);
-              this.setState({
-                fname: res.data.user_id.fname,
-                lname: res.data.user_id.lname,
-                email: res.data.user_id.email,
-                education: res.data.education,
-                skills: res.data.skills,
-                rating: res.data.rating,
-                pic: res.data.pic_path
-              })
+    //     await axios.get('http://localhost:5000/appl/profile', config)
+    //          .then(res => {
+    //           // console.log(res.data.pic_path);
+    //           this.setState({
+    //             fname: res.data.user_id.fname,
+    //             lname: res.data.user_id.lname,
+    //             email: res.data.user_id.email,
+    //             education: res.data.education,
+    //           })
 
-            })
-             .catch(err=>{
-              if(err.response){
-                if(err.response.data.error)
-                  console.log(err.response.data.error)
-                else
-                  console.log(err.message);
-              }
-              else
-                console.log(err.message);
-             });
-
-    }
+    //         })
+    //          .catch(err=>{
+    //           if(err.response){
+    //             if(err.response.data.error)
+    //               console.log(err.response.data.error)
+    //             else
+    //               console.log(err.message);
+    //           }
+    //           else
+    //             console.log(err.message);
+    //          });
+    // }
 
     onIntInputChange(e) {
       var yr = parseInt(e.target.value)
@@ -156,6 +147,7 @@ export default class Home extends Component {
         start_year:(new Date()).getFullYear(),
         end_year:'',
         insti_name:'',
+        perc: '',
         open:false
       });
     }
@@ -165,10 +157,11 @@ export default class Home extends Component {
       var x = {
         insti_name:this.state.insti_name,
         start_year:this.state.start_year,
-        end_year:this.state.end_year
+        end_year:this.state.end_year,
+        percentage:this.state.perc
       }
       console.log(x);
-      if(x.insti_name!=='' && x.start_year!==''){
+      if(x.insti_name!=='' && x.percentage!=='' && x.start_year!==''){
         if(parseInt(x.start_year)>parseInt(x.end_year)){
           alert("End year cannot be less than Start year");
           return;
@@ -184,6 +177,10 @@ export default class Home extends Component {
             return;
           }
         }
+        if (x.percentage < 0 || x.percentage > 100) {
+          alert("Invalid percentage")
+          return;
+        }
         var y = this.state.education;
         y.push(x);
         this.setState({
@@ -191,12 +188,12 @@ export default class Home extends Component {
           start_year:(new Date()).getFullYear(),
           end_year:'',
           insti_name:'',
+          percentage: '',
           open:false
         });
       }
       else{
         alert("Institute name and start year are compulsory");
-        
       }
     }
 
@@ -213,6 +210,10 @@ export default class Home extends Component {
         this.setState({ email: event.target.value });
     }
 
+    onChangeAddress(event) {
+      this.setState({ address: event.target.value });
+    }
+
     onChangePwd(event) {
         this.setState({ pwd: event.target.value });
     }
@@ -224,11 +225,16 @@ export default class Home extends Component {
         else{
           var b=1;
 
-          var prof = {
+          var data = {
+            fname: this.state.fname,
+            mname: this.state.mname,
+            lname: this.state.lname,
+            dob: this.state.dob,
+            course_title: this.state.course_title,
+            contact: this.state.contact,
+            email: this.state.email,
+            address: this.state.address,
             education: this.state.education,
-            skills: this.state.skills,
-            rating:0,
-
           }
 
           this.state.education.forEach(function(x,i){
@@ -246,6 +252,10 @@ export default class Home extends Component {
               if(!x.end_year){ 
                 prof.education[i].end_year=null;
               }
+              if(!x.percentage || (x.percentage<0 || x.percentage > 100)) {
+                alert(`Invalid or missing percentage value for education no. ${i+1}`)
+                return;
+              }
               else{
                 if(x.end_year>2100|| x.end_year<1900){
                   alert(`Invalid end year for education entry ${i+1}`)
@@ -257,7 +267,7 @@ export default class Home extends Component {
               
             }
             else{
-              alert("Institute name and start year are compulsory. Check entry "+(i+1));
+              alert("Institute name, percentage and start year are compulsory. Check entry "+(i+1));
               b=0;
               return;
             }
@@ -279,41 +289,24 @@ export default class Home extends Component {
           }
 
           
-          console.log(prof);
+          // console.log(prof);
           var c=0;
-          await axios.patch('http://localhost:5000/user/updateDetails', {lname:this.state.lname,fname:this.state.fname}, config)
-               .then(res => {
-                })
-               .catch(err => {
-                  if(err.response){
-                    if(err.response.data.error)
-                      alert(err.response.data.error)
-                    else
-                      alert(err.message);
-                  }
-                  
-                  else
-                    alert(err.message);  
-                  c=1;
-               });
-          if(c) return;
+          axios.post('http://localhost:5000/appl/apply',data, config)
+          .then(response => {
+            
+            this.setState({
+              showSop:false,
+              sop:'',
+              course:{}
+            });
+            this.loadcourses();
+            alert("Submitted application!");
 
-          axios.put('http://localhost:5000/appl/updateProfile', prof, config)
-               .then(res => {
-                  alert("Updated");
-                  this.setState({edit:false})
-                })
-               .catch(err => {
-                  if(err.response){
-                    if(err.response.data.error)
-                      alert(err.response.data.error)
-                    else
-                      alert(err.message);
-                  }
-                  
-                  else
-                    alert(err.message);             
-               });
+          })
+          .catch(function(error) {
+            console.log(error);
+            alert("Something went wrong. Please try again");
+          })
         }
     }
 
@@ -327,9 +320,8 @@ render() {
       <Paper style={classes.paper}>
       
         <Typography component="h1" variant="h5" style={{marginBottom:10}}>
-          Profile
+          Application Form
         </Typography>
-
 
               <Dialog open={this.state.open} onClose={this.handleClose} aria-labelledby="form-dialog-title">
                 <DialogTitle id="form-dialog-title">Add Education</DialogTitle>
@@ -386,7 +378,7 @@ render() {
 
         
         
-                <img src={`http://localhost:5000/${this.state.pic}`} alt="Profile Image" style={{height:250,width:250, marginBottom:10}}/>
+                {/* <img src={`http://localhost:5000/${this.state.pic}`} alt="Profile Image" style={{height:250,width:250, marginBottom:10}}/> */}
         <form style={classes.form} onSubmit={this.onSubmit} noValidate>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
@@ -400,6 +392,22 @@ render() {
                 label="First Name"
                 autoFocus={this.state.edit}
                 value={this.state.fname}
+                onChange={this.onInputChange}
+                InputProps = {{
+                  readOnly: !this.state.edit
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                variant="outlined"
+                required
+                fullWidth
+                id="mname"
+                label="Middle Name"
+                name="mname"
+                autoComplete="mname"
+                value={this.state.mname}
                 onChange={this.onInputChange}
                 InputProps = {{
                   readOnly: !this.state.edit
@@ -427,6 +435,40 @@ render() {
                 variant="outlined"
                 required
                 fullWidth
+                type="date"
+                id="dob"
+                label="Date of birth"
+                name="dob"
+                autoComplete="dob"
+                value={this.state.dob}
+                InputProps = {{
+                  readOnly: true
+                }}
+                InputLabelProps={{
+                  shrink: true, // This ensures that the label is shown correctly with the date input
+                }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                variant="outlined"
+                required
+                fullWidth
+                id="contact"
+                label="Contact Number"
+                name="contact"
+                autoComplete="contact"
+                value={this.state.contact}
+                InputProps = {{
+                  readOnly: true
+                }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                variant="outlined"
+                required
+                fullWidth
                 id="email"
                 label="Email Address"
                 name="email"
@@ -437,6 +479,22 @@ render() {
                 }}
               />
             </Grid>
+            <Grid item xs={12}>
+              <TextField
+                variant="outlined"
+                required
+                fullWidth
+                id="address"
+                label="Address"
+                name="address"
+                autoComplete="address"
+                value={this.state.address}
+                InputProps = {{
+                  readOnly: true
+                }}
+              />
+            </Grid>
+
             <Grid item xs={12}>
             <Typography>Education:</Typography>
             
@@ -515,13 +573,11 @@ render() {
 
               </FormControl>
             </Grid>
-            {this.state.edit?(
             <Grid item xs={12}>
               <Autocomplete
                 multiple
                 id="tags-filled"
-                options={this.state.predSkills}
-                value={this.state.skills}
+                options={this.state.courses}
                 renderOption={(option) => option.name}
                 getOptionLabel={(option) => {
                   // Value selected with enter, right from the input
@@ -538,90 +594,29 @@ render() {
                 onChange={(event, newValue) => {
                   console.log("onchange")
                   console.log(newValue)
-                  var pred = this.state.predSkills;
-                  var x = this.state.skills;
-                  var p=[];var s=[];
+                  var pred = this.state.courses;
+                  var x = this.state.course_title;
+                  var c = '';
 
                   newValue.forEach((val,i)=>{
                     console.log(val)
                     if(typeof val==='string'){  //option wasnt selected, directly pressed enter
                       
-                      var predInd = pred.findIndex((it)=>it.key===val.toLowerCase());
-                      if(predInd!==-1){  //present in predSkills
-                        var skiInd = s.findIndex((it)=>it.key===val.toLowerCase());
-                        if(skiInd!==-1){  //present in s
-
-                        }
-                        else{
-                          s.push({key:val.toLowerCase(),name:val});
-
-                        }
-                      }
-                      else{
-                        s.push({key:val.toLowerCase(),name:val});
-                        pred.push({key:val.toLowerCase(),name:val});
-                      }
-                      
-                    }
-                    else if(val && val.name){
-                      if(val.key!==val.name.toLowerCase()){ //add "" got selected
-                        pred.push({key:val.key.toLowerCase(), name:val.key});
-                        s.push({key:val.key.toLowerCase(), name:val.key});
-                        
-                      }
-                      else{
-                      //  p.push({key:val.name.toLowerCase(), name:val.name});
-                        var skiInd = s.findIndex((it)=>it.key===val.key.toLowerCase());
-                        if(skiInd!==-1){  //present in s
-
-                        }
-                        else{
-                          s.push({key:val.name.toLowerCase(), name:val.name});
-                        }
+                      var predInd = pred.findIndex((it)=>it.key.toLowerCase()===val.toLowerCase() || it.name.toLowerCase()===val.toLowerCase());
+                      if(predInd!==-1){  //present in courses
+                        c = pred[predInd].key;
                       }
                     }
-                    else {
-                    //  p.push({key:val.name.toLowerCase(), name:val.name});
-                      var skiInd = s.findIndex((it)=>it.key===val.toLowerCase());
-                        if(skiInd!==-1){  //present in s
-
-                        }
-                        else{
-                          s.push({key:val.name.toLowerCase(), name:val.name});
-                        }
-                    }
-
                   });
                   console.log(pred);
                   this.setState({
-                    skills:s,
-                    predSkills:pred
+                    course_title: c
                   })
-
-
                   
                   console.log("onchange")
 
               }}
                 freeSolo
-                filterOptions={(options, params) => {
-                  const filtered = filter(options, params);
-                  console.log("filtered" + filtered)
-                  // Suggest the creation of a new value
-                  if (params.inputValue !== '') {
-                    var skiInd = filtered.findIndex((it)=>it.key===params.inputValue.toLowerCase());
-                        if(skiInd!==-1){  //present in options
-
-                        }
-                        else{
-                    filtered.push({
-                      key: params.inputValue.toLowerCase(),
-                      name: `Add "${params.inputValue}"`,
-                    });}
-                  }
-
-                  return filtered;
-                }}
                 selectOnFocus
                 clearOnBlur
                 handleHomeEndKeys
@@ -635,20 +630,10 @@ render() {
                   
                 }
                 renderInput={(params) => (
-                  <TextField {...params} variant="outlined" label="Skills" placeholder="Add a skill" />
+                  <TextField {...params} variant="outlined" label="Course" placeholder="Select Course"/>
                 )}
               />
-              </Grid>):
-              (
-                <Grid item xs={12}>
-                <Typography>Skills:</Typography>
-                {this.state.skills.map((option, index) => 
-                  
-                    <Chip variant="outlined" key={option.key} label={option.name} />
-                 )}
-                 </Grid>
-                  )}
-            
+            </Grid>
 
           </Grid>
           <Button
@@ -658,7 +643,7 @@ render() {
             color="primary"
             style={classes.submit}
           >
-          {this.state.edit?"Update":"Edit"}
+          Submit
           </Button>
 
         </form>
@@ -669,3 +654,4 @@ render() {
 }
 }
 
+export default ApplForm;

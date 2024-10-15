@@ -3,6 +3,7 @@ import './App.css';
 import React from 'react';
 import { BrowserRouter as Router, Route, Link, Switch} from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css"
+
 import Home from './components/Home.js'
 import acreateProfile from './components/RegPart2Appl.js'
 import rcreateProfile from './components/RegPart2Recr.js'

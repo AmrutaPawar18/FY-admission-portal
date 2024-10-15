@@ -12,8 +12,8 @@ const fileSchema = new Schema(
     },
     what:{
       type:String,
-      defaultValue:'pic',
-      enum:['pic','cv']
+      defaultValue:'ssc_cert',
+      enum:['ssc_cert', 'hsc_cert']
     },
     file_path: {
       type: String,

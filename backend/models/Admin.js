@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 // Create Schema
-const RecruiterSchema = new Schema({
+const AdminSchema = new Schema({
 	user_id: {
 		type: Schema.Types.ObjectId,
         required: true, 
@@ -19,4 +19,4 @@ const RecruiterSchema = new Schema({
     }
 });
 
-module.exports = Recruiter = mongoose.model("Recruiters", RecruiterSchema);
+module.exports = Admin = mongoose.model("Admins", AdminSchema);

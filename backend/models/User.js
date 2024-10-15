@@ -3,7 +3,7 @@ require('mongoose-type-email');
 mongoose.SchemaTypes.Email.defaults.message = 'Email address is invalid'
 
 const roles = [
-  'Recruiter', 'Applicant'
+  'Admin', 'Applicant'
 ]
 
 const userSchema = new mongoose.Schema({

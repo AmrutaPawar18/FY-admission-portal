@@ -122,7 +122,7 @@ export default class Home extends Component {
                 localStorage.setItem('role', role);
                 if(role==='Applicant')
                   this.props.history.push('/acreateProfile');
-                else if(role === 'Recruiter')
+                else if(role === 'Admin')
                   this.props.history.push('/rcreateProfile');
                 console.log(res);
                 this.setState({fname:"",lname:"", email:"", pwd:"", role:""})
@@ -207,7 +207,7 @@ export default class Home extends Component {
                     <em>None</em>
                   </MenuItem>
                   <MenuItem value={"Applicant"}>Applicant</MenuItem>
-                  <MenuItem value={"Recruiter"}>Recruiter</MenuItem>
+                  <MenuItem value={"Admin"}>Admin</MenuItem>
                 </Select>
               </FormControl>
                   </Grid>

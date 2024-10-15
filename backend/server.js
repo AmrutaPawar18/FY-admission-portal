@@ -14,10 +14,10 @@ app.use(express.json());
 const db = require('./config/keys').mongoURI;
 
 const users = require("./routes/Users");
-const recruiters = require("./routes/recr");
+const admin = require("./routes/admin");
 const applicants = require("./routes/appl");
 const files = require("./routes/file");
-//const recruiters = require("./routes/Recruiters");
+
 //connecting to db
 mongoose
     .connect(db, { 
@@ -34,7 +34,7 @@ connection.once('open', function() {
 //Use routes
 app.use("/user",users);
 app.use("/appl", applicants);
-app.use("/recr", recruiters);
+app.use("/admin", admin);
 app.use("/file", files);
 app.use("/uploads", express.static('uploads'))
     

@@ -14,15 +14,15 @@ const authA = require('../middleware/authAppl.js');
 
 //this secret will be used to create jwt
 
-// Load Job model
-const Job = require("../models/Job");
+// Load Course model
+const Course = require("../models/Course");
 const Application = require("../models/Application")
 const Applicant = require("../models/Applicant")
 
 // route: appl/  
 // PRIVATE
 // GET request 
-// Getting all the jobs
+// Getting all the Courses
 router.get("/", authA, async function(req, res) {
     var user_id=req.user.id;
     //console.log(user_id)
@@ -35,44 +35,39 @@ router.get("/", authA, async function(req, res) {
             var accepted = applicat.filter(a=> a.stage==='Accepted');
         //    console.log(filt)
             if(filt.length===10){
-                mess = "Sorry, you can't apply to more jobs as you reached application limit!"
+                mess = "Sorry, you can't apply to more Courses as you reached application limit!"
             }
             if(accepted.length>0){
-                mess = "You can't apply to more jobs as you have been accepted in a job already"
+                mess = "You can't apply to more Courses as you have been accepted in a Course already"
             }
         })
-    Job.find()
-    	.populate('recr_id', 'email fname lname')
-    	.then(jobs=> {
-    		var filt = jobs.filter(job =>{
-    			var d = job.deadline.split(" ");
-    			var date = d[0].split("-");
-    			var tim = d[1].split(":");
-    			var dead = new Date(date[0],date[1]-1,date[2],tim[0],tim[1]);
-    			// console.log((new Date()).getTime());
-    			// console.log(dead.getTime())
-    			return (((new Date()).getTime())<dead.getTime())
-    		})
-            var f=[];
-            if(applications===[]){
-                f = filt.map((j)=>{
-                    return({...j._doc,applied:false});
-                })
-            }
-            else{
-                f = filt.map((j)=>{
-                    if(applications.some(applicati=>
-                        applicati.job_id.toString()===j._id.toString())){
-                        return({...j._doc,applied:true});
-                    }
-                    else{
-                        return({...j._doc,applied:false});
-                    }
-                })
-            }
-
-			res.status(200).json({f,mess});
-		})
+        Course.find()
+        .then(Courses => {
+          var f = [];
+      
+          // Check if the applications array is empty
+          if (applications.length === 0) {
+            f = Courses.map(j => {
+              return { ...j._doc, applied: false };
+            });
+          } else {
+            // Compare Courses with applications to check for applied status
+            f = Courses.map(j => {
+              if (applications.some(applicati => applicati.Course_id.toString() === j._id.toString())) {
+                return { ...j._doc, applied: true };
+              } else {
+                return { ...j._doc, applied: false };
+              }
+            });
+          }
+      
+          // Send the result as a response
+          res.status(200).json({ f, mess });
+        })
+        .catch(err => {
+          // Handle errors if needed
+          res.status(500).json({ error: err.message });
+        })      
     	.catch(err =>{
     		res.status(400).send(err);
     	});
@@ -91,8 +86,7 @@ router.post("/apply", authA, async (req, res) => {
 			if(appl){
                 console.log(appl)
 				newApplication.appl_edu = appl.education;
-				newApplication.appl_skills = appl.skills;
-				newApplication.appl_rating = appl.rating;
+                newApplication.merit_no = appl.merit_no;
 				newApplication.appl_user_id = applId;
                 newApplication.appl_id = appl._id;
 			}
@@ -107,10 +101,10 @@ router.post("/apply", authA, async (req, res) => {
 		});
 	console.log(req.user);
     console.log(newApplication);
-	const jobId = req.body.job_id;
+	const courseId = req.body.course_id;
 	newApplication.save()
         .then(application => {
-        	Job.findOneAndUpdate({_id:jobId}, {$inc : {'appl_got': 1}})
+        	Course.findOneAndUpdate({_id:courseId}, {$inc : {'appl_received': 1}})
         		.then(j => {
         			res.status(200).json(application);
         		})
@@ -156,10 +150,9 @@ router.post("/newProfile", authA, (req, res) => {
 router.put("/updateProfile", authA, (req, res) => {
     const _id = req.user.id;
     const education = req.body.education;
-    const skills = req.body.skills;
-    Applicant.findOneAndUpdate({user_id: _id}, {user_id: _id, education:education, skills:skills}, {new:true, upsert:true})
+    const address = req.body.address;
+    Applicant.findOneAndUpdate({user_id: _id}, {user_id: _id, education:education, address:address}, {new:true, upsert:true})
         .then(savedPro => {
-
             res.status(200).json(savedPro);
         })
         .catch(err => {
@@ -190,7 +183,6 @@ router.get("/profile", authA, (req, res) => {
 router.get("/applications", authA, (req, res) => {
     var id = req.user.id;
     Application.find({appl_user_id: id})
-        .populate('recr_id','email fname lname')
         .then(a => {
             res.status(200).json(a);
         })
@@ -202,32 +194,32 @@ router.get("/applications", authA, (req, res) => {
 // route: appl/rate/:id
 // PRIVATE
 // POST request 
-// Save employee rating in db, update job rating
-router.post("/rate/:id", authA, async function(req, res) {
+// Save employee rating in db, update Course rating
+// router.post("/rate/:id", authA, async function(req, res) {
 
-    var id = req.user.id;   //applicant id
-    console.log(id)
-    var aId= req.params.id; //application id
-    var rating= req.body.rating;
+//     var id = req.user.id;   //applicant id
+//     console.log(id)
+//     var aId= req.params.id; //application id
+//     var rating= req.body.rating;
     
-    Application.findOneAndUpdate({_id: aId}, {$set:{job_rating:rating}},{new:true})
-        .then(pro => {
-            Application.aggregate([
-                {$match:{$and:[{job_rating:{$gt:0}}, {job_id:pro.job_id}]}},
-                {$group:{_id:"$job_id", rate: {$avg: "$job_rating"}}}
-            ])
-            .then(x=>{
-                console.log(x)
-                Job.findOneAndUpdate({_id:x[0]._id},{$set:{rating:x[0].rate}},{new:true})
-                    .then(p=>res.json(p))
-            })
-        })
-        .catch(err => {
-            res.status(400).send(err);
-        });
-    });
+//     Application.findOneAndUpdate({_id: aId}, {$set:{Course_rating:rating}},{new:true})
+//         .then(pro => {
+//             Application.aggregate([
+//                 {$match:{$and:[{Course_rating:{$gt:0}}, {Course_id:pro.Course_id}]}},
+//                 {$group:{_id:"$Course_id", rate: {$avg: "$Course_rating"}}}
+//             ])
+//             .then(x=>{
+//                 console.log(x)
+//                 Course.findOneAndUpdate({_id:x[0]._id},{$set:{rating:x[0].rate}},{new:true})
+//                     .then(p=>res.json(p))
+//             })
+//         })
+//         .catch(err => {
+//             res.status(400).send(err);
+//         });
+//     });
 
-router.post("/uploadPic")
+// router.post("/uploadPic")
 
 
 module.exports = router;
