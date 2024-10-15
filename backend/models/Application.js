@@ -17,11 +17,6 @@ const ApplicationSchema = new Schema({
     appl_user_id: {
     	type: Schema.Types.ObjectId,
         required: true, 
-        ref: 'Users'
-    },
-    appl_id: {
-        type: Schema.Types.ObjectId,
-        required: true, 
         ref: 'Applicants'
     },
     date_of_appl:{

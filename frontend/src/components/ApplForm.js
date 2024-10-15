@@ -85,7 +85,8 @@ class ApplForm extends Component {
             insti_name:'',
             start_year:(new Date()).getFullYear(),
             end_year: '',
-            perc: ''
+            perc: '',
+            merit_no: ''
         }
         this.onChangeEmail = this.onChangeEmail.bind(this);
         this.onChangePwd = this.onChangePwd.bind(this);
@@ -235,6 +236,7 @@ class ApplForm extends Component {
             email: this.state.email,
             address: this.state.address,
             education: this.state.education,
+            merit_no: this.state.merit_no
           }
 
           this.state.education.forEach(function(x,i){
@@ -570,6 +572,22 @@ render() {
               {this.state.edit && <Grid item xs={12}>
                 <Button onClick={(e)=> {e.preventDefault(); this.setState({open:true})}}>+ Add education</Button>
               </Grid>}
+
+              <Grid item xs={12}>
+              <TextField
+                variant="outlined"
+                required
+                fullWidth
+                id="merit_no"
+                label="Merit Number in Entrance Test"
+                name="merit_no"
+                autoComplete="merit_no"
+                value={this.state.merit_no}
+                InputProps = {{
+                  readOnly: true
+                }}
+              />
+            </Grid>
 
               </FormControl>
             </Grid>

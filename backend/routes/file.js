@@ -29,8 +29,7 @@ const upload = multer({
 });
 
 const authA = require('../middleware/authAppl.js');
-Router.post(
-  '/upload',authA,
+Router.post('/upload',authA,
   upload.fields([{ name:'ssc_cert', maxCount:1}, {name:'hsc_cert', maxCount:1}]),
   async (req, res) => {
     try {
@@ -38,6 +37,8 @@ Router.post(
     //  console.log(req)
       const { ssc_path, ssc_mimetype } = req.files.ssc_cert[0];
       const { hsc_path, hsc_mimetype} = req.files.hsc_cert[0];
+      const { aadhar_path, aadhar_mimetype} = req.files.aadhar[0];
+      const { cet_path, cet_mimetype} = req.files.cet[0];
       console.log(path)
       const ssc_cert = new File({
         user_id:id,
@@ -51,8 +52,21 @@ Router.post(
         file_mimetype: hsc_mimetype
       });
       await hsc_cert.save();
+      const aadhar = new File({
+        user_id:id,
+        file_path: aadhar_path,
+        file_mimetype: aadhar_mimetype
+      });
+      await aadhar.save();
+      const cet = new File({
+        user_id:id,
+        file_path: cet_path,
+        file_mimetype: cet_mimetype
+      });
+      await cet.save();
       await Applicant.findOneAndUpdate({user_id: id}, {$set:{ssc_cert_path: ssc_path,
-        ssc_cert_mimetype: ssc_mimetype, hsc_cert_path:hsc_path, ssc_cert_mimetype:hsc_mimetype}}, {new:true})
+        ssc_cert_mimetype: ssc_mimetype, hsc_cert_path:hsc_path, hsc_cert_mimetype:hsc_mimetype, 
+        aadhar_path:aadhar_path, aadhar_mimetype:aadhar_mimetype, cet_path:cet_path, cet_mimetype:cet_mimetype}}, {new:true})
       res.send('file uploaded successfully.');
     } catch (error) {
       console.log(error)

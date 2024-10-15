@@ -10,11 +10,6 @@ const fileSchema = new Schema(
         ref: 'Users',
         unique: true
     },
-    what:{
-      type:String,
-      defaultValue:'ssc_cert',
-      enum:['ssc_cert', 'hsc_cert']
-    },
     file_path: {
       type: String,
       required: true

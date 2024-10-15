@@ -66,7 +66,7 @@ class ApplDash extends Component {
           config.headers['auth-tok'] = token;
         }
         console.log(this.props.match.params)
-        axios.post('http://localhost:5000/appl/', config)
+        axios.post('http://localhost:5000/appl/applications', config)
              .then(response => {
               var array = response.data;
               array.sort(function(a, b) {
@@ -215,7 +215,6 @@ class ApplDash extends Component {
                             <Table>
                                 <TableHead>
                                     <TableRow>
-                                            <TableCell>Application ID</TableCell>
                                             <TableCell>Applicant ID</TableCell>
                                             <TableCell>Course</TableCell>    
                                             <TableCell>Date of Application</TableCell>
@@ -226,7 +225,6 @@ class ApplDash extends Component {
                                     {this.state.applications.map((a,ind) => (
 
                                         <TableRow>
-                                            <TableCell>{a.appl_id}</TableCell>
                                             <TableCell>{a.appl_user_id._id}</TableCell>
                                             <TableCell>{a.course_title}</TableCell>
                                             <TableCell>{moment(a.date_of_appl).format('DD-MM-YYYY')}</TableCell>

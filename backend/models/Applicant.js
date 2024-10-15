@@ -26,7 +26,7 @@ const ApplicantSchema = new Schema({
         required: true, 
         ref: 'Users'
     },
-    mName: {
+    mname: {
         type: String,
         required: true
     },
@@ -57,11 +57,23 @@ const ApplicantSchema = new Schema({
       type: String,
     },
     hsc_cert_path: {
-    type: String,
+        type: String,
     },
     hsc_cert_mimetype: {
+      type: String,
+    },
+    aadhar_path: {
+        type: String,
+    },
+    aadhar_mimetype: {
     type: String,
-    }
+    },
+    cet_path: {
+    type: String,
+    },
+    cet_mimetype: {
+    type: String,
+    },
 });
 
 module.exports = Applicant = mongoose.model("Applicants", ApplicantSchema);
