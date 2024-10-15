@@ -356,54 +356,80 @@ render() {
         <Typography component="h1" variant="h5" style={{marginBottom:10}}>
           Document
         </Typography>
-        <form>
-        <div className="form-group">
-          <label htmlFor="aadharCard">Upload Aadhar Card:</label>
-          <input
-            type="file"
-            name="aadharCard"
-            accept="application/pdf,image/*"
-            onChange={handleFileChange}
-          />
-        </div>
 
-        <div className="form-group">
-          <label htmlFor="cetMarksheet">Upload CET Marksheet:</label>
-          <input
-            type="file"
-            name="cetMarksheet"
-            accept="application/pdf,image/*"
-            onChange={handleFileChange}
-          />
-        </div>
+            <Dialog open={this.state.openFile} onClose={()=>this.setState({openFile:false})} onExited={()=>this.props.history.push('/aDashboard')} aria-labelledby="form-dialog-title">
+                <DialogTitle id="form-dialog-title">Add Documents</DialogTitle>
+                <DialogContent>
+                
 
-        <div className="form-group">
-          <label htmlFor="hscMarksheet">Upload HSC Marksheet:</label>
-          <input
-            type="file"
-            name="hscMarksheet"
-            accept="application/pdf,image/*"
-            onChange={handleFileChange}
-          />
-        </div>
+                <Button variant="contained" color="primary" component="label">
+                  Choose SSC Certificate file
+                  <input type="file" hidden onChange={this.onSSCChange}/>
+                </Button>
+                {this.state.ssc_cert ? (
+              <div className="preview-message">
+                <p>{this.state.ssc_cert.name}</p>
+              </div>
+            
+            ) : (
+            <div className="preview-message">
+              <p>File name will be shown here after selection</p>
+            </div>
+            )}
 
-        <div className="form-group">
-          <label htmlFor="sscMarksheet">Upload SSC Marksheet:</label>
-          <input
-            type="file"
-            name="sscMarksheet"
-            accept="application/pdf,image/*"
-            onChange={handleFileChange}
-          />
-        </div>
+            <Button variant="contained" color="primary" component="label">
+                  Choose HSC Certificate file
+                  <input type="file" hidden onChange={this.onHSCChange}/>
+                </Button>
+                {this.state.hsc_cert ? (
+              <div className="preview-message">
+                <p>{this.state.hsc_cert.name}</p>
+              </div>
+            
+            ) : (
+            <div className="preview-message">
+              <p>File name will be shown here after selection</p>
+            </div>
+            )}
 
-        <Button variant="contained" color="primary" className="upload-button" type="submit" onClick={this.uploadDoc}>
-            Upload to Database
-        </Button>
-      </form>
+<Button variant="contained" color="primary" component="label">
+                  Choose Aadhar Card file
+                  <input type="file" hidden onChange={this.onAadharChange}/>
+                </Button>
+                {this.state.aadhar ? (
+              <div className="preview-message">
+                <p>{this.state.aadhar.name}</p>
+              </div>
+            
+            ) : (
+            <div className="preview-message">
+              <p>File name will be shown here after selection</p>
+            </div>
+            )}
 
+<Button variant="contained" color="primary" component="label">
+                  Choose CET Marksheet file
+                  <input type="file" hidden onChange={this.onCETChange}/>
+                </Button>
+                {this.state.cet ? (
+              <div className="preview-message">
+                <p>{this.state.cet.name}</p>
+              </div>
+            
+            ) : (
+            <div className="preview-message">
+              <p>File name will be shown here after selection</p>
+            </div>
+            )}
+
+                </DialogContent>
+                <DialogActions>
                  
-                  
+                  <Button variant="contained" color="primary" className="upload-button" type="submit" onClick={this.uploadPic}>
+                  Upload to Database
+                  </Button>
+                </DialogActions>
+              </Dialog>
             {//   <form style={classes.form} onSubmit={this.uploadPic} noValidate>
             //     <Button variant="contained" color="primary" component="label">
             //       Choose file

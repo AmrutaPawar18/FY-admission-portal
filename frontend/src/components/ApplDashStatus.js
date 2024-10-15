@@ -38,6 +38,7 @@ class ApplDash extends Component {
         super(props);
         this.state = {
           applications: [],
+          status: ''
           // sortedUsers: [],
           // sortName:true,
           // desc:0,
@@ -46,6 +47,7 @@ class ApplDash extends Component {
         // this.renderIcon = this.renderIcon.bind(this);
         // this.sortChange = this.sortChange.bind(this);
         this.onAccept = this.onAccept.bind(this);
+        this.onStatusDisplay = this.onStatusDisplay.bind(this);
         // this.onShortlist = this.onShortlist.bind(this);
         // this.sortApplic = this.sortApplic.bind(this);
         // this.sortAlt = this.sortAlt.bind(this);   //on changing sort section dropdowns
@@ -196,6 +198,12 @@ class ApplDash extends Component {
     //     }
     // }
 
+    onStatusDisplay() {
+        this.setState({
+          status: applications[0].stage,
+        })
+    }
+
     render() {
         return (
             <div>
@@ -236,8 +244,27 @@ class ApplDash extends Component {
                             </Table>
                         </Paper>               
                     </Grid>    
-                </Grid>            
-            </div>
+                </Grid>         
+                <div className="slider-container">
+                  <input
+                    type="range"
+                    min="1"
+                    max="7"
+                    value={this.state.status}
+                    className="slider"
+                    onChange={(e) => setStatus(e.target.value)}
+                  />
+                  <div className="status-labels">
+                    <span>Submitted</span>
+                    <span>Under Review</span>
+                    <span>Approved</span>
+                    <span>Documents Verified</span>
+                    <span>Fees Paid</span>
+                    <span>Accepted</span>
+                    <span>Rejected</span>
+                  </div>
+                </div> 
+          </div>
         )
     }
 }
