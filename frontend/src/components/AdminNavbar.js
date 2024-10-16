@@ -4,7 +4,7 @@ import Button from "@material-ui/core/Button"
 import "bootstrap/dist/css/bootstrap.min.css";
 import { GoogleLogout } from 'react-google-login';
 
-export default class RecrNavbar extends Component {
+export default class AdminNavbar extends Component {
     
     constructor(props) {
         super(props);
@@ -14,17 +14,17 @@ export default class RecrNavbar extends Component {
         return (
             <div>                
                 <nav class="navbar navbar-expand navbar-dark bg-dark">
-                    <Link to="/rProfile" class="navbar-brand">Headless Hunt</Link>
+                    <Link to="/adminDashboard" class="navbar-brand">VJTI Admission Portal</Link>
                     <div >
                         <ul class="navbar-nav mr-auto">
                             <li className="navbar-item">
-                                <Link to="/rDashboard" className="nav-link">My Jobs</Link>
+                                <Link to="/adminApplView" className="nav-link">View Applications</Link>
                             </li>
                             <li class="navbar-item">
-                                <Link to="/employees" className="nav-link">My Employees</Link>
+                                <Link to="/adminCoursesView" className="nav-link">View Courses</Link>
                             </li>
                             <li class="navbar-item">
-                                <Link to="/rProfile" className="nav-link">My Profile</Link>
+                            <Link to="/adminAnalytics">View Analytics</Link>
                             </li> 
                             <li class="navbar-item">
                                 <GoogleLogout

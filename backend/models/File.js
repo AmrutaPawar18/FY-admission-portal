@@ -8,7 +8,6 @@ const fileSchema = new Schema(
       type: Schema.Types.ObjectId,
         required: true, 
         ref: 'Users',
-        unique: true
     },
     file_path: {
       type: String,

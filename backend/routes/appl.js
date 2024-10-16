@@ -23,9 +23,10 @@ const Applicant = require("../models/Applicant")
 // PRIVATE
 // GET request 
 // get application info from db
-router.get("/applications", authA, (req, res) => {
+router.get("/applications", authA, async(req, res) => {
     var id = req.user.id;
-    Application.find({appl_user_id: id})
+    const applicant = await Applicant.findOne({user_id: id});
+    await Application.find({appl_user_id: applicant._id})
         .then(a => {
             res.status(200).json(a);
         })
@@ -42,34 +43,33 @@ router.post("/apply", authA, async (req, res) => {
 	const appl_user_id = req.user.id;
 	
     const newApplicant = new Applicant({ user_id: appl_user_id, ...req.body});
+    console.log(req.body.course_title);
+    const course = await Course.findOne({title: req.body.course_title});
+    console.log(course)
 
-    const course_id = Course.findOne({'course_title': req.body.course_title});
+    const course_id = course._id;
 
     const newApplication = new Application({
         course_id: course_id,
         course_title: req.body.course_title,
-        appl_user_id: appl_user_id,
+        appl_user_id: newApplicant._id,
         appl_edu: req.body.education
     })
 
 	console.log(newApplicant);
     console.log(newApplication);
     newApplicant.save();
-	newApplication.save()
-        .then(application => {
-        	Course.findOneAndUpdate({_id:course_id}, {$inc : {'appl_received': 1}})
-        		.then(j => {
-        			res.status(200).json(application);
-        		})
-        		.catch(err=> {
-		            return res.status(400).send(err);
-		        });
-            
-        })
-        .catch(err => {
-            return res.status(400).send(err);
-        });
+	newApplication.save();
 
+    await Course.findOneAndUpdate({title:req.body.course_title}, {$inc : {'appl_received': 1}})
+        .then(j => {
+            console.log("j")
+            res.status(200).send({ message: "Submitted Successfully" });
+        })
+        .catch(err=> {
+            console.log(err)
+            return res.status(400).send({ message: err.message });
+        });
     });
 
 

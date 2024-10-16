@@ -31,17 +31,109 @@ const secret = require('../config/keys.js').secret;
 // Load models
 const Course = require("../models/Course");
 const Admin = require("../models/Admin");
-const Application = require("../models/Application.js")
+const Application = require("../models/Application.js");
+const Applicant = require("../models/Applicant.js");
 
 // GET request 
-// Getting all active Courses (Courses with max positions not filled(maxPos>posn_filled))
-router.get("/", authR, function(req, res) {
-    var id= req.user.id
-    Course.find()//, $expr:{$gt:["$maxPos","$posn_filled"]}})
+// Getting all active Courses (Courses with max positions not filled(capacity>seats_filled))
+router.get("/courses", authR, async function(req, res) {
+    await Course.find()//, $expr:{$gt:["$maxPos","$posn_filled"]}})
         .then(Courses => {
-		  var filt = Courses.filter(Course=>(Course.maxPos>Course.posn_filled))
-		  res.json(filt);
+		  res.json(Courses);
 	})
+});
+
+router.get("/applications", authR, async (req, res) => {
+    await Application.find({})
+        .then(a => {
+            res.json(a);
+        })
+        .catch(err => {
+            res.status(400).send(err);
+        });
+});
+
+router.post("/updateStatus/:id/:stage", authR, async function(req, res) {
+    var user_id = req.params.id;
+    var stage = req.params.stage;
+    console.log(stage);
+    if (stage == "DocumentsVerified")
+    {
+        stage = "Documents Verified";
+    }
+    else if (stage == "FeesPaid")
+    {
+        stage = "Fees Paid";
+    }
+    const applicant = await Applicant.findOne({user_id: user_id});
+    console.log(applicant);
+    const application = await Application.findOne({appl_user_id: applicant._id});
+    console.log(application);
+    await Application.updateOne({_id: application._id}, {$set:{stage:stage}})
+        .then(appl => {
+           res.status(200).json(appl);
+        })
+
+        .catch(err => {
+            return res.status(400).send(err);
+        }) 
+})
+
+// route: admin/accept
+// PRIVATE
+// POST request 
+// Accept an applicant, 
+// reject all other applications of that applicant, 
+//incr posn_filled of Course
+//(if now all positions have been filled then reject all applications for this Course)
+router.put("/accept/:id", authR, async function(req, res) {
+    var id = req.params.id;
+    const application = await Application.findOne({_id: id}).populate('email');
+    var email = application.email;
+    console.log(email)
+    const course = application.course_title;
+    await Application.updateOne({_id: application._id}, {$set:{stage:"Accepted"}})
+        .then(appl => {
+           res.status(200).json(appl);
+        })
+
+        .catch(err => {
+            return res.status(400).send(err);
+        }) 
+
+    await Course.findOneAndUpdate({course_title: course_title}, {$inc : {'seats_filled': 1}},{new:true})
+        .then(j => {
+            if(j.seats_filled<j.capacity){
+                return res.status(200).json({mess:"Updated"})
+            }
+        })
+        .catch(err=> {
+            return res.status(400).send(err);
+    });
+
+    //reject all applications, return a message for Admin
+    // if(c==0){
+    //     Application.updateMany({Course_id:CourseId, stage:{$ne:"Accepted"}},{$set: {stage: "Rejected"}},(err,result)=>{
+    //         if(err)
+    //             return res.status(400).send(err)
+    //         else res.status(200).json({mess:"All positions for this Course have been filled!"})
+    //     })
+    // }
+
+    let mailDetails = { 
+        from: "VJTIlibrary@outlook.com", 
+        to: email, 
+        subject: 'Congratulations!', 
+        text: `You have been accepted into Veermata Jijabai Technological Institute`
+    }; 
+
+    mailTransporter.sendMail(mailDetails, function(err, data) { 
+        if(err) { 
+            console.log(err); 
+        } else { 
+            console.log('Email sent successfully'); 
+        } 
+    }); 
 });
 
 // route: admin/newCourse    
@@ -114,141 +206,80 @@ router.get("/", authR, function(req, res) {
 // PRIVATE
 // PUT request 
 // Update profile 
-router.put("/updateProfile", authR, (req, res) => {
-    const _id = req.user.id;
-    const contact = req.body.contact;
-    const bio = req.body.bio;
-    Admin.updateOne({user_id: _id}, {user_id:_id,contact:contact, bio:bio},{new:true,upsert:true})
-        .then(savedPro => {
+// router.put("/updateProfile", authR, (req, res) => {
+//     const _id = req.user.id;
+//     const contact = req.body.contact;
+//     const bio = req.body.bio;
+//     Admin.updateOne({user_id: _id}, {user_id:_id,contact:contact, bio:bio},{new:true,upsert:true})
+//         .then(savedPro => {
 
-            res.status(200).json(savedPro);
-        })
-        .catch(err => {
-            res.status(400).send(err);
-        });
-    });
+//             res.status(200).json(savedPro);
+//         })
+//         .catch(err => {
+//             res.status(400).send(err);
+//         });
+//     });
 
 
 // route: admin/profile
 // PRIVATE
 // GET request 
 // Get Admin profile details from db
-router.get("/profile", authR, function(req, res) {
+// router.get("/profile", authR, function(req, res) {
 
-    var id = req.user.id;
-    Admin.findOne({user_id: id})
-        .populate('user_id','email fname lname')
-        .then(pro => {
-            res.status(200).json(pro);
+//     var id = req.user.id;
+//     Admin.findOne({user_id: id})
+//         .populate('user_id','email fname lname')
+//         .then(pro => {
+//             res.status(200).json(pro);
             
 
-        })
-        .catch(err => {
-            res.status(400).send(err);
-        });
-    });
+//         })
+//         .catch(err => {
+//             res.status(400).send(err);
+//         });
+//     });
 
 // route: admin/newProfile   
 // PRIVATE
 // POST request 
 // Add a profile to db
-router.post("/newProfile", authR, (req, res) => {
-	const newProfile = new Admin(req.body);
-	newProfile.user_id = req.user.id;
-	console.log(req.user);
-	newProfile.save()
-        .then(pro => {
-            res.status(200).json(pro);
-        })
-        .catch(err => {
-            x="";
-            for(e in err.errors){
-                x=x+err.errors[e].message+"\n";
+// router.post("/newProfile", authR, (req, res) => {
+// 	const newProfile = new Admin(req.body);
+// 	newProfile.user_id = req.user.id;
+// 	console.log(req.user);
+// 	newProfile.save()
+//         .then(pro => {
+//             res.status(200).json(pro);
+//         })
+//         .catch(err => {
+//             x="";
+//             for(e in err.errors){
+//                 x=x+err.errors[e].message+"\n";
 
-            }
+//             }
             
-            res.status(400).json({err, error:x});
-        });
-    });
+//             res.status(400).json({err, error:x});
+//         });
+//     });
 
 // route: admin/applications
 // PRIVATE
 // POST request 
 // Get non-rejected applications for a Course from db
-router.post("/applications", authR, function(req, res) {
+// router.post("/applications", authR, function(req, res) {
 
-    var id = req.user.id;
-    var courseId = req.body.id
-    Application.find({course_id: courseId, stage:{$ne: "Rejected"}})
-        .populate('appl_user_id','fname lname email')
-        .then(appls => {
-            res.status(200).json(appls);
-        })
-        .catch(err => {
-            res.status(400).send(err);
-        });
-    });
-
-// route: admin/accept
-// PRIVATE
-// POST request 
-// Accept an applicant, 
-// reject all other applications of that applicant, 
-//incr posn_filled of Course
-//(if now all positions have been filled then reject all applications for this Course)
-router.post("/accept", authR, async function(req, res) {
-
-    var id = req.user.id;
-
-    var applicationId = req.body.id;
-    var appl_user_id = req.body.appl_user_id;
-    var email = req.body.appl_email
-    console.log(email)
-    const courseId = req.body.courseId;
-    var c= 0;
-    await Application.updateOne({_id: applicationId}, {$set:{stage:"Accepted",doj:Date.now()}})
-        .then(appl => {
-        //    res.status(200).json(appl);
-        })
-
-        .catch(err => {
-            return res.status(400).send(err);
-        }) 
-
-    await Course.findOneAndUpdate({_id: courseId}, {$inc : {'seats_filled': 1}},{new:true})
-        .then(j => {
-            if(j.seats_filled<j.capacity){
-                c=1;
-                return res.status(200).json({mess:"Updated"})
-            }
-        })
-        .catch(err=> {
-            return res.status(400).send(err);
-    });
-    //reject all applications, return a message for Admin
-    if(c==0){
-        Application.updateMany({Course_id:CourseId, stage:{$ne:"Accepted"}},{$set: {stage: "Rejected"}},(err,result)=>{
-            if(err)
-                return res.status(400).send(err)
-            else res.status(200).json({mess:"All positions for this Course have been filled!"})
-        })
-    }
-
-    let mailDetails = { 
-        from: "VJTIlibrary@outlook.com", 
-        to: email, 
-        subject: 'Congratulations!', 
-        text: `You have been accepted into Veermata Jijabai Technological Institute`
-    }; 
-
-    mailTransporter.sendMail(mailDetails, function(err, data) { 
-        if(err) { 
-            console.log(err); 
-        } else { 
-            console.log('Email sent successfully'); 
-        } 
-    }); 
-});
+//     var id = req.user.id;
+//     var courseId = req.body.id
+//     Application.find({course_id: courseId, stage:{$ne: "Rejected"}})
+//         .populate('appl_user_id','fname lname email')
+//         .then(appls => {
+//             res.status(200).json(appls);
+//         })
+//         .catch(err => {
+//             res.status(400).send(err);
+//         });
+//     });
 
 
 // route: admin/shortlist
@@ -275,18 +306,18 @@ router.post("/accept", authR, async function(req, res) {
 // PRIVATE
 // GET request 
 // Get employee details from db
-router.get("/employees", authR, function(req, res) {
+// router.get("/employees", authR, function(req, res) {
 
-    var id = req.user.id;
-    Application.find({stage:"Accepted"})
-        .populate('appl_user_id','fname lname')
-        .then(pro => {
-            res.status(200).json(pro);
-        })
-        .catch(err => {
-            res.status(400).send(err);
-        });
-    });
+//     var id = req.user.id;
+//     Application.find({stage:"Accepted"})
+//         .populate('appl_user_id','fname lname')
+//         .then(pro => {
+//             res.status(200).json(pro);
+//         })
+//         .catch(err => {
+//             res.status(400).send(err);
+//         });
+//     });
 
 // route: admin/rate/:id
 // PRIVATE

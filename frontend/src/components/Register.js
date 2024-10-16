@@ -116,14 +116,14 @@ export default class Home extends Component {
 
         axios.post('http://localhost:5000/user/register', newUser)
              .then(res => {
-                alert("Created basic account for " + res.data.name+". Please continue to complete your profile"); 
+                alert("Welcome " + res.data.name); 
                 localStorage.setItem('token', res.data.token);
                 var role = res.data.role;
                 localStorage.setItem('role', role);
                 if(role==='Applicant')
-                  this.props.history.push('/acreateProfile');
+                  this.props.history.push('/applHome');
                 else if(role === 'Admin')
-                  this.props.history.push('/rcreateProfile');
+                  this.props.history.push('/adminDashboard');
                 console.log(res);
                 this.setState({fname:"",lname:"", email:"", pwd:"", role:""})
 
@@ -156,14 +156,14 @@ export default class Home extends Component {
 
         axios.post('http://localhost:5000/user/register', newUser)
              .then(res => {
-                alert("Created basic account for " + res.data.name+". Please continue to complete your profile"); 
+                alert("Welcome " + res.data.name); 
                 localStorage.setItem('token', res.data.token);
                 var role = res.data.role;
                 localStorage.setItem('role', role);
                 if(role==='Applicant')
-                  this.props.history.push('/acreateProfile');
-                else if(role === 'Recruiter')
-                  this.props.history.push('/rcreateProfile');
+                  this.props.history.push('/applHome');
+                else if(role === 'Admin')
+                  this.props.history.push('/adminDashboard');
                 console.log(res);
                 this.setState({fname:"",lname:"", email:"", pwd:"", role:"",open:false})
 
@@ -306,7 +306,7 @@ export default class Home extends Component {
                     <em>None</em>
                   </MenuItem>
                   <MenuItem value={"Applicant"}>Applicant</MenuItem>
-                  <MenuItem value={"Recruiter"}>Recruiter</MenuItem>
+                  <MenuItem value={"Admin"}>Admin</MenuItem>
                 </Select>
               </FormControl>
             </Grid>

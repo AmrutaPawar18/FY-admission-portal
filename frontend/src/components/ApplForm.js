@@ -79,7 +79,6 @@ class ApplForm extends Component {
             previewSrc:'',
             IsPreviewAvailable:false,
             email:'',
-            edit: false,
             education:[],
             open:false,
             insti_name:'',
@@ -162,7 +161,7 @@ class ApplForm extends Component {
         percentage:this.state.perc
       }
       console.log(x);
-      if(x.insti_name!=='' && x.percentage!=='' && x.start_year!==''){
+      if(x.insti_name!=='' && x.start_year!==''){
         if(parseInt(x.start_year)>parseInt(x.end_year)){
           alert("End year cannot be less than Start year");
           return;
@@ -178,10 +177,10 @@ class ApplForm extends Component {
             return;
           }
         }
-        if (x.percentage < 0 || x.percentage > 100) {
-          alert("Invalid percentage")
-          return;
-        }
+        // if (x.percentage < 0 || x.percentage > 100) {
+        //   alert("Invalid percentage")
+        //   return;
+        // }
         var y = this.state.education;
         y.push(x);
         this.setState({
@@ -221,11 +220,6 @@ class ApplForm extends Component {
 
     async onSubmit(e) {
         e.preventDefault();
-        if(!this.state.edit)
-          this.setState({edit:true});
-        else{
-          var b=1;
-
           var data = {
             fname: this.state.fname,
             mname: this.state.mname,
@@ -243,25 +237,22 @@ class ApplForm extends Component {
             if(x.insti_name!=='' && x.start_year!==''){
               if(parseInt(x.start_year)>parseInt(x.end_year)){
                 alert("End year cannot be less than Start year for education entry " + (i+1));
-                b=0;
                 return;
               }
               if(x.start_year>2100 || x.start_year<1900){
                 alert(`Invalid start year for education no. ${i+1}`)
-                b=0;
                 return;
               }
               if(!x.end_year){ 
-                prof.education[i].end_year=null;
+                data.education[i].end_year=null;
               }
-              if(!x.percentage || (x.percentage<0 || x.percentage > 100)) {
-                alert(`Invalid or missing percentage value for education no. ${i+1}`)
-                return;
-              }
+              // if(!x.percentage || (x.percentage<0 || x.percentage > 100)) {
+              //   alert(`Invalid or missing percentage value for education no. ${i+1}`)
+              //   return;
+              // }
               else{
                 if(x.end_year>2100|| x.end_year<1900){
                   alert(`Invalid end year for education entry ${i+1}`)
-                  b=0;
                   return;
                 }
               }
@@ -270,12 +261,10 @@ class ApplForm extends Component {
             }
             else{
               alert("Institute name, percentage and start year are compulsory. Check entry "+(i+1));
-              b=0;
               return;
             }
             // console.log("ji")
           });
-          if(!b) return
           // console.log("ki")
           var token = localStorage.getItem('token');
 
@@ -293,24 +282,16 @@ class ApplForm extends Component {
           
           // console.log(prof);
           var c=0;
-          axios.post('http://localhost:5000/appl/apply',data, config)
+          axios.post('http://localhost:5000/appl/apply', data, config)
           .then(response => {
-            
-            this.setState({
-              showSop:false,
-              sop:'',
-              course:{}
-            });
-            this.loadcourses();
-            alert("Submitted application!");
-
+            alert(response.data.message);
+            this.props.history.push('/uploadDocs');
           })
           .catch(function(error) {
             console.log(error);
             alert("Something went wrong. Please try again");
           })
-        }
-    }
+        };
 
 render() {
 
@@ -392,12 +373,8 @@ render() {
                 fullWidth
                 id="fname"
                 label="First Name"
-                autoFocus={this.state.edit}
                 value={this.state.fname}
                 onChange={this.onInputChange}
-                InputProps = {{
-                  readOnly: !this.state.edit
-                }}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -411,9 +388,6 @@ render() {
                 autoComplete="mname"
                 value={this.state.mname}
                 onChange={this.onInputChange}
-                InputProps = {{
-                  readOnly: !this.state.edit
-                }}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -427,9 +401,6 @@ render() {
                 autoComplete="lname"
                 value={this.state.lname}
                 onChange={this.onInputChange}
-                InputProps = {{
-                  readOnly: !this.state.edit
-                }}
               />
             </Grid>
             <Grid item xs={12}>
@@ -443,12 +414,7 @@ render() {
                 name="dob"
                 autoComplete="dob"
                 value={this.state.dob}
-                InputProps = {{
-                  readOnly: true
-                }}
-                InputLabelProps={{
-                  shrink: true, // This ensures that the label is shown correctly with the date input
-                }}
+                onChange={this.onInputChange}
               />
             </Grid>
             <Grid item xs={12}>
@@ -461,9 +427,7 @@ render() {
                 name="contact"
                 autoComplete="contact"
                 value={this.state.contact}
-                InputProps = {{
-                  readOnly: true
-                }}
+                onChange={this.onInputChange}
               />
             </Grid>
             <Grid item xs={12}>
@@ -476,9 +440,7 @@ render() {
                 name="email"
                 autoComplete="email"
                 value={this.state.email}
-                InputProps = {{
-                  readOnly: true
-                }}
+                onChange={this.onInputChange}
               />
             </Grid>
             <Grid item xs={12}>
@@ -491,9 +453,7 @@ render() {
                 name="address"
                 autoComplete="address"
                 value={this.state.address}
-                InputProps = {{
-                  readOnly: true
-                }}
+                onChange={this.onInputChange}
               />
             </Grid>
 
@@ -518,9 +478,6 @@ render() {
                       temp[ind].insti_name = e.target.value; 
                       this.setState({education:temp})
                     }}
-                    InputProps = {{
-                      readOnly: !this.state.edit
-                    }}
                   />
                   </Grid>
                   <Grid item xs={6} md={3}>
@@ -540,9 +497,6 @@ render() {
                       console.log(temp)
                       this.setState({education:temp})
                     }}
-                  InputProps = {{
-                    readOnly: !this.state.edit
-                  }}
                 />
                 </Grid>
                   <Grid item xs={6} md={3}>
@@ -556,22 +510,19 @@ render() {
                   onChange={(e)=>{
                       var temp = this.state.education; 
                       if(parseInt(e.target.value))
-                        temp[ind].end_year = parseInt(e.target.value); 
+                      temp[ind].end_year = parseInt(e.target.value); 
                       console.log(temp)
                       this.setState({education:temp})
                     }}
-                  InputProps = {{
-                    readOnly: !this.state.edit
-                  }}
                 />
                 </Grid>
                 </Grid>
                 </li>
               ))}
               </ol>
-              {this.state.edit && <Grid item xs={12}>
+              <Grid item xs={12}>
                 <Button onClick={(e)=> {e.preventDefault(); this.setState({open:true})}}>+ Add education</Button>
-              </Grid>}
+              </Grid>
 
               <Grid item xs={12}>
               <TextField
@@ -583,9 +534,7 @@ render() {
                 name="merit_no"
                 autoComplete="merit_no"
                 value={this.state.merit_no}
-                InputProps = {{
-                  readOnly: true
-                }}
+                onChange={this.onInputChange}
               />
             </Grid>
 
@@ -609,29 +558,29 @@ render() {
                   // Regular option
                   return option.name;
                 }}
-                onChange={(event, newValue) => {
-                  console.log("onchange")
-                  console.log(newValue)
-                  var pred = this.state.courses;
-                  var x = this.state.course_title;
-                  var c = '';
+                onChange={(event) => {
+                  // console.log("onchange")
+                  // console.log(newValue)
+                  // var pred = this.state.courses;
+                  // var x = this.state.course_title;
+                  // var c = '';
 
-                  newValue.forEach((val,i)=>{
-                    console.log(val)
-                    if(typeof val==='string'){  //option wasnt selected, directly pressed enter
+                  // newValue.forEach((val,i)=>{
+                  //   console.log(val)
+                  //   if(typeof val==='string'){  //option wasnt selected, directly pressed enter
                       
-                      var predInd = pred.findIndex((it)=>it.key.toLowerCase()===val.toLowerCase() || it.name.toLowerCase()===val.toLowerCase());
-                      if(predInd!==-1){  //present in courses
-                        c = pred[predInd].key;
-                      }
-                    }
-                  });
-                  console.log(pred);
+                  //     var predInd = pred.findIndex((it)=>it.key.toLowerCase()===val.toLowerCase() || it.name.toLowerCase()===val.toLowerCase());
+                  //     if(predInd!==-1){  //present in courses
+                  //       c = pred[predInd].key;
+                  //     }
+                  //   }
+                  // });
+                  // console.log(pred);
                   this.setState({
-                    course_title: c
+                    course_title: this.state.courses[event.target.value].name
                   })
                   
-                  console.log("onchange")
+                  // console.log("onchange")
 
               }}
                 freeSolo
@@ -639,14 +588,6 @@ render() {
                 clearOnBlur
                 handleHomeEndKeys
                 //filterSelectedOptions//removes already selected options
-                renderTags={(value, getTagProps) =>
-                  
-                  this.state.skills.map((option, index) => 
-                  
-                    <Chip variant="outlined" key={option.name.toLowerCase()} label={option.name} {...getTagProps({ index })} />
-                  )
-                  
-                }
                 renderInput={(params) => (
                   <TextField {...params} variant="outlined" label="Course" placeholder="Select Course"/>
                 )}

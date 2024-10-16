@@ -11,7 +11,7 @@ import TextField from '@material-ui/core/TextField';
 import { BrowserRouter as Router, Route, Link} from "react-router-dom";
 import moment from 'moment'
 
-import RecrNavbar from './AdminNavbar.js';
+import AdminNavbar from './AdminNavbar.js';
 
 const classes={
 	paper: {

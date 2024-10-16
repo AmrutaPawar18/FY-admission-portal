@@ -14,19 +14,22 @@ export default class ApplNavbar extends Component {
         return (
             <div>                
                 <nav class="navbar sticky-top navbar-expand navbar-dark bg-dark">
-                    <Link to="/aProfile" class="navbar-brand">Headless Hunt</Link>
+                <Link to="/applHome" className="navbar-logo">VJTI Portal</Link>
               
                     <div class="navbarToggler" id="navbarToggler">
                         <ul className="navbar-nav mr-auto">
                             <li class="navbar-item">
-                                <Link to="/aDashboard" className="nav-link">Job Listing</Link>
+                            <Link to="/applForm">Application Form</Link>
                             </li>
                             <li class="navbar-item">
-                                <Link to="/myApplications" className="nav-link">My Applications</Link>
+                            <Link to="/uploadDocs">Upload Documents</Link>
                             </li>
                             <li class="navbar-item">
-                                <Link to="/aProfile" className="nav-link">My Profile</Link>
+                            <Link to="/aStatus">Application Status</Link>
                             </li> 
+                            <li>
+                                <a href="https://www.onlinesbi.sbi/sbicollect/icollecthome.htm">Fee Payment</a>
+                            </li>
                             <li class="navbar-item">
                                 <GoogleLogout
                                   onLogoutSuccess={(response) => { console.log(response);localStorage.removeItem('token');localStorage.removeItem('role'); }}

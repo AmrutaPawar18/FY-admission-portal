@@ -25,7 +25,7 @@ import Select from '@material-ui/core/Select';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import { BrowserRouter as Router, Route, Link} from "react-router-dom";
-import RecrNavbar from './RecrNavbar.js';
+import ApplNavbar from './ApplNavbar.js';
 import SearchIcon from "@material-ui/icons/Search";
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
@@ -38,7 +38,8 @@ class ApplDash extends Component {
         super(props);
         this.state = {
           applications: [],
-          status: ''
+          status: '',
+          allStatus: ['Submittted', 'Documents Verified', 'Fees Paid', 'Accepted', 'Rejected']
           // sortedUsers: [],
           // sortName:true,
           // desc:0,
@@ -68,21 +69,12 @@ class ApplDash extends Component {
           config.headers['auth-tok'] = token;
         }
         console.log(this.props.match.params)
-        axios.post('http://localhost:5000/appl/applications', config)
+        axios.get('http://localhost:5000/appl/applications', config)
              .then(response => {
-              var array = response.data;
-              array.sort(function(a, b) {
-                if(a.date_of_appl != undefined && b.date_of_appl != undefined){
-                    return (1) * (new Date(a.date_of_appl).getTime() - new Date(b.date_of_appl).getTime());
-                }
-                else{
-                    return 1;
-                }
-              });
+              this.setState({applications: response.data});
+              })
               // console.log(response.data);
               // console.log(array)
-                 this.setState({applications: response.data});
-             })
              .catch(function(error) {
                  console.log(error);
              })
@@ -200,14 +192,14 @@ class ApplDash extends Component {
 
     onStatusDisplay() {
         this.setState({
-          status: applications[0].stage,
+          status: this.state.applications[0].stage,
         })
     }
 
     render() {
         return (
             <div>
-            <RecrNavbar/>
+            <ApplNavbar/>
               <Grid container>
                 <Grid item xs={12} md={3} lg={3}>
                     <List component="nav" aria-label="mailbox folders">
@@ -233,7 +225,7 @@ class ApplDash extends Component {
                                     {this.state.applications.map((a,ind) => (
 
                                         <TableRow>
-                                            <TableCell>{a.appl_user_id._id}</TableCell>
+                                            <TableCell>{a.appl_user_id}</TableCell>
                                             <TableCell>{a.course_title}</TableCell>
                                             <TableCell>{moment(a.date_of_appl).format('DD-MM-YYYY')}</TableCell>
                                             <TableCell>{a.stage}</TableCell>
@@ -249,15 +241,13 @@ class ApplDash extends Component {
                   <input
                     type="range"
                     min="1"
-                    max="7"
-                    value={this.state.status}
+                    max="5"
+                    value={this.state.allStatus.indexOf('status')+1}
                     className="slider"
-                    onChange={(e) => setStatus(e.target.value)}
+                    onChange={(e) => this.onStatusDisplay()}
                   />
                   <div className="status-labels">
                     <span>Submitted</span>
-                    <span>Under Review</span>
-                    <span>Approved</span>
                     <span>Documents Verified</span>
                     <span>Fees Paid</span>
                     <span>Accepted</span>
