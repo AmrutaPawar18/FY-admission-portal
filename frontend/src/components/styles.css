@@ -531,3 +531,64 @@ p {
 .info-section h2 {
   margin-bottom: 20px;
 }
+
+/* Basic styling for the navbar */
+.navbar {
+    background-color: #343a40; /* Dark background color */
+    padding: 10px 20px; /* Padding for spacing */
+}
+
+.navbar-logo {
+    font-size: 1.5rem;
+    color: #ffffff;
+    font-weight: bold;
+    margin-right: 20px;
+    text-decoration: none;
+}
+
+.navbar-logo:hover {
+    color: #ffc107; /* Hover color change */
+    text-decoration: underline;
+}
+
+.navbar-item {
+    margin-right: 15px;
+}
+
+.navbar-item .nav-link {
+    color: #ffffff;
+    font-size: 1rem;
+    padding: 8px 12px;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.navbar-item .nav-link:hover {
+    color: #ffc107; /* Add hover effect for links */
+}
+
+.logout-btn {
+    color: #ffffff;
+    background-color: #dc3545; /* Red logout button */
+    border-radius: 4px;
+    padding: 8px 12px;
+    text-decoration: none;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.logout-btn:hover {
+    background-color: #c82333; /* Darker red on hover */
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+    .navbarToggler {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .navbar-item {
+        margin-bottom: 10px;
+    }
+}

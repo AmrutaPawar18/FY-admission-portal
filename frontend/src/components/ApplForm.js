@@ -410,7 +410,7 @@ render() {
                 fullWidth
                 type="date"
                 id="dob"
-                label="Date of birth"
+                // label="Date of birth"
                 name="dob"
                 autoComplete="dob"
                 value={this.state.dob}

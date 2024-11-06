@@ -10,12 +10,13 @@ function Home() {
       <p>Your gateway to seamless admission management.</p>
 
     <div className="card-container">
-    <div className="card">
-        <Link to="/login" className="card-link">
+    <div className="card" style={{ width: '350px' }}>
+    <Link to="/login" className="card-link">
         <h3>User Login/Registration</h3>
         <p>Login / register here.</p>
-        </Link>
-    </div>
+    </Link>
+</div>
+
     <div className="info-section">
         <h2>Why Choose VJTI?</h2>
         <ul>

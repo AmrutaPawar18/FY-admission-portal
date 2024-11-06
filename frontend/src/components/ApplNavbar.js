@@ -1,54 +1,133 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
-import Button from "@material-ui/core/Button"
+import Button from "@material-ui/core/Button";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { GoogleLogout } from 'react-google-login';
 
 export default class ApplNavbar extends Component {
-    
+
     constructor(props) {
         super(props);
     }
 
     render() {
+        // Define professional-looking color palette
+        const navbarStyle = {
+            backgroundColor: '#1a1a1a', // Dark gray for the navbar
+            padding: '15px 30px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            height: '60px'
+        };
+
+        const logoStyle = {
+            fontSize: '1.7rem',
+            color: '#e0e0e0', // Soft off-white for the logo text
+            fontWeight: 'bold',
+            marginRight: '30px',
+            textDecoration: 'none',
+        };
+
+        const navLinkStyle = {
+            color: '#d3d3d3', // Light gray for the nav links
+            fontSize: '1rem',
+            padding: '10px 15px',
+            textDecoration: 'none',
+            transition: 'color 0.3s ease',
+        };
+
+        const navLinkHover = {
+            color: '#f5f5f5', // Slightly lighter gray on hover
+        };
+
+        const buttonStyle = {
+            color: '#f0f0f0', // Light color for the button text
+            backgroundColor: '#444', // Dark gray button for Logout
+            borderRadius: '4px',
+            padding: '8px 16px',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'background-color 0.3s ease'
+        };
+
+        const buttonHoverStyle = {
+            backgroundColor: '#555', // Slightly lighter shade on hover
+        };
+
         return (
-            <div>                
-                <nav class="navbar sticky-top navbar-expand navbar-dark bg-dark">
-                <Link to="/applHome" className="navbar-logo">VJTI Portal</Link>
-              
-                    <div class="navbarToggler" id="navbarToggler">
-                        <ul className="navbar-nav mr-auto">
-                            <li class="navbar-item">
-                            <Link to="/applForm">Application Form</Link>
+            <div>
+                <nav style={navbarStyle}>
+                    <Link to="/applHome" style={logoStyle}>VJTI Portal</Link>
+
+                    <div id="navbarToggler" style={{ display: 'flex' }}>
+                        <ul style={{ display: 'flex', listStyleType: 'none', margin: 0, padding: 0 }}>
+                            <li style={{ marginRight: '20px' }}>
+                                <Link 
+                                    to="/applForm" 
+                                    style={navLinkStyle} 
+                                    onMouseOver={(e) => e.target.style.color = navLinkHover.color}
+                                    onMouseOut={(e) => e.target.style.color = navLinkStyle.color}
+                                >
+                                    Application Form
+                                </Link>
                             </li>
-                            <li class="navbar-item">
-                            <Link to="/uploadDocs">Upload Documents</Link>
+                            <li style={{ marginRight: '20px' }}>
+                                <Link 
+                                    to="/uploadDocs" 
+                                    style={navLinkStyle} 
+                                    onMouseOver={(e) => e.target.style.color = navLinkHover.color}
+                                    onMouseOut={(e) => e.target.style.color = navLinkStyle.color}
+                                >
+                                    Upload Documents
+                                </Link>
                             </li>
-                            <li class="navbar-item">
-                            <Link to="/aStatus">Application Status</Link>
-                            </li> 
+                            <li style={{ marginRight: '20px' }}>
+                                <Link 
+                                    to="/aStatus" 
+                                    style={navLinkStyle} 
+                                    onMouseOver={(e) => e.target.style.color = navLinkHover.color}
+                                    onMouseOut={(e) => e.target.style.color = navLinkStyle.color}
+                                >
+                                    Application Status
+                                </Link>
+                            </li>
+                            <li style={{ marginRight: '20px' }}>
+                                <a 
+                                    href="https://www.onlinesbi.sbi/sbicollect/icollecthome.htm" 
+                                    style={navLinkStyle} 
+                                    onMouseOver={(e) => e.target.style.color = navLinkHover.color}
+                                    onMouseOut={(e) => e.target.style.color = navLinkStyle.color}
+                                >
+                                    Fee Payment
+                                </a>
+                            </li>
                             <li>
-                                <a href="https://www.onlinesbi.sbi/sbicollect/icollecthome.htm">Fee Payment</a>
-                            </li>
-                            <li class="navbar-item">
                                 <GoogleLogout
-                                  onLogoutSuccess={(response) => { console.log(response);localStorage.removeItem('token');localStorage.removeItem('role'); }}
-                                  onFailure={(err)=>{console.log(err)}}
-                                  render={(renderProps) => (
-                                      <Button onClick={renderProps.onClick} disabled={renderProps.disabled} >
-                                        <Link to="/" className="nav-link">Logout</Link>
-                                      </Button>
+                                    onLogoutSuccess={(response) => {
+                                        console.log(response);
+                                        localStorage.removeItem('token');
+                                        localStorage.removeItem('role');
+                                    }}
+                                    onFailure={(err) => { console.log(err); }}
+                                    render={(renderProps) => (
+                                        <Button 
+                                            onClick={renderProps.onClick} 
+                                            disabled={renderProps.disabled} 
+                                            style={buttonStyle}
+                                            onMouseOver={(e) => e.target.style.backgroundColor = buttonHoverStyle.backgroundColor}
+                                            onMouseOut={(e) => e.target.style.backgroundColor = buttonStyle.backgroundColor}
+                                        >
+                                            Logout
+                                        </Button>
                                     )}
-                                  clientId="531568689114-5rg3ebcc6ciphbv6ged7m54lbj0gine5.apps.googleusercontent.com"
-            
+                                    clientId="531568689114-5rg3ebcc6ciphbv6ged7m54lbj0gine5.apps.googleusercontent.com"
                                 />
-
-                            </li>  
-
+                            </li>
                         </ul>
                     </div>
                 </nav>
             </div>
-        )
+        );
     }
 }
