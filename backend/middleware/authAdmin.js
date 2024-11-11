@@ -3,11 +3,9 @@ const secret = require('../config/keys').secret;
 
 function authAppl(req, res, next){
 	const tok = req.header('auth-tok');
-
 	//check for token
 	if(!tok){
 		return res.status(401).json({error:"No token, authorization denied "});
-
 	}
 
 	try{
@@ -28,6 +26,7 @@ function authAppl(req, res, next){
 			res.status(403).json({error:"Not authorized to access this page"});
 		}
 		else
+		console.log(e);
 		res.status(401).json({error:"Invalid token"});
 	}
 }

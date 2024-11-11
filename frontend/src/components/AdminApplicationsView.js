@@ -42,9 +42,7 @@ class AdminApplView extends Component {
         // this.renderIcon = this.renderIcon.bind(this);
         // this.sortChange = this.sortChange.bind(this);
         this.onAccept = this.onAccept.bind(this);
-        this.onDocsVerified = this.onDocsVerified.bind(this);
-        this.onFeesPaid = this.onFeesPaid.bind(this);
-        this.onReject = this.onReject.bind(this);
+        this.onStatusChange = this.onStatusChange.bind(this);      
         this.onViewSSC = this.onViewSSC.bind(this);
         this.onViewHSC = this.onViewHSC.bind(this);
         this.onViewAadhar = this.onViewAadhar.bind(this);
@@ -94,21 +92,24 @@ class AdminApplView extends Component {
         if (token) {
           config.headers['auth-tok'] = token;
         }
-        console.log(a);
-     axios.put(`http://localhost:5000/admin/accept/{a._id}`, config)
+        var data ={
+          id: a._id
+        };
+     axios.put('http://localhost:5000/admin/accept', data, config)
          .then(res => {
+            console.log(res);
             var arr= this.state.applications.map(x=> x._id===a._id?{...x,stage:"Accepted"}:x);
             this.setState({applications:arr})
          })
          .catch(function(error) {
-             console.log(error);
+             console.log(error.error);
          })
     }
 
-    onDocsVerified(a, e){  //a is the application object
+    onStatusChange(a, e, stage){  //a is the application object
       e.preventDefault();
+      console.log("Route hit!")
        var token = localStorage.getItem('token');
-
         // Headers
         var config = {
           headers: {
@@ -121,61 +122,14 @@ class AdminApplView extends Component {
           config.headers['auth-tok'] = token;
         }
         console.log(a);
-     axios.post(`http://localhost:5000/admin/updateStatus/{a._id}/DocumentsVerified`, config)
+        var data = {
+          id: a._id, 
+          stage: stage
+        }
+     axios.put(`http://localhost:5000/admin/updateStatus`, data, config)
          .then(res => {
-            var arr= this.state.applications.map(x=> x._id===a._id?{...x,stage:"Documents Verified"}:x);
-            this.setState({applications:arr})
-         })
-         .catch(function(error) {
-             console.log(error);
-         })
-    }
-
-    onFeesPaid(a, e){  //a is the application object
-      e.preventDefault();
-       var token = localStorage.getItem('token');
-
-        // Headers
-        var config = {
-          headers: {
-            'Content-type': 'application/json'
-          }
-        }
-
-        // If token, add to headers
-        if (token) {
-          config.headers['auth-tok'] = token;
-        }
-        console.log(a);
-     axios.put(`http://localhost:5000/admin/updateStatus/{a._id}/"FeesPaid"`, config)
-         .then(res => {
-            var arr= this.state.applications.map(x=> x._id===a._id?{...x,stage:"Fees Paid"}:x);
-            this.setState({applications:arr})
-         })
-         .catch(function(error) {
-             console.log(error);
-         })
-    }
-
-    onReject(a, e){  //a is the application object
-      e.preventDefault();
-       var token = localStorage.getItem('token');
-
-        // Headers
-        var config = {
-          headers: {
-            'Content-type': 'application/json'
-          }
-        }
-
-        // If token, add to headers
-        if (token) {
-          config.headers['auth-tok'] = token;
-        }
-        console.log(a);
-     axios.put(`http://localhost:5000/admin/updateStatus/{a._id}/"Rejected"`, config)
-         .then(res => {
-            var arr= this.state.applications.map(x=> x._id===a._id?{...x,stage:"Rejected"}:x);
+            console.log(res)
+            var arr= this.state.applications.map(x=> x._id===a._id?{...x, stage:stage}:x);
             this.setState({applications:arr})
          })
          .catch(function(error) {
@@ -545,16 +499,16 @@ class AdminApplView extends Component {
                                             </TableCell>                 
                                             <TableCell>{a.stage}</TableCell>
                                             <TableCell>
-                                              <Button onClick={(e)=>this.onDocsVerified(a, e)}>Status - Verify Documents</Button>
+                                              <Button onClick={(e)=>this.onStatusChange(a, e, "Documents Verified")}>Status - Verify Documents</Button>
                                             </TableCell>  
                                             <TableCell>
-                                              <Button onClick={(e)=>this.onFeesPaid(a, e)}>Status - Fees Paid</Button>
+                                              <Button onClick={(e)=>this.onStatusChange(a, e, "Fees Paid")}>Status - Fees Paid</Button>
                                             </TableCell>  
                                             <TableCell>
                                               <Button onClick={(e)=>this.onAccept(a,e)}>Accept Application</Button>
                                             </TableCell>  
                                             <TableCell>
-                                              <Button onClick={(e)=>this.onReject(a, e)}>Reject Application</Button>
+                                              <Button onClick={(e)=>this.onStatusChange(a, e, "Rejected")}>Reject Application</Button>
                                             </TableCell>  
                                           
 

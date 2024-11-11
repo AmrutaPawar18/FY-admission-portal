@@ -6,6 +6,8 @@ const File = require('../models/File');
 const Applicant = require('../models/Applicant');
 const Router = express.Router();
 
+const authR = require('../middleware/authAdmin.js');
+
 const upload = multer({
   storage: multer.diskStorage({
     destination(req, file, cb) {
@@ -106,7 +108,7 @@ Router.post('/upload', authA, upload.fields([
   }
 });
 
-  Router.get('/download/:id/:fileType', async (req, res) => {
+Router.get('/download/:id/:fileType', authR, async (req, res) => {
       const applicant = await Applicant.findOne({ _id: req.params.id });
       const fileType = req.params.fileType;
       let filePath;

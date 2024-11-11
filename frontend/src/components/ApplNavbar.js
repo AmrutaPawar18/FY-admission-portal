@@ -116,9 +116,11 @@ export default class ApplNavbar extends Component {
                                             disabled={renderProps.disabled} 
                                             style={buttonStyle}
                                             onMouseOver={(e) => e.target.style.backgroundColor = buttonHoverStyle.backgroundColor}
-                                            onMouseOut={(e) => e.target.style.backgroundColor = buttonStyle.backgroundColor}
+                                            onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
                                         >
-                                            Logout
+                                            <Link to="/" style={navLinkStyle}>
+                                                Logout
+                                            </Link>
                                         </Button>
                                     )}
                                     clientId="531568689114-5rg3ebcc6ciphbv6ged7m54lbj0gine5.apps.googleusercontent.com"

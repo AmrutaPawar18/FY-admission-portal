@@ -33,6 +33,7 @@ const Course = require("../models/Course");
 const Admin = require("../models/Admin");
 const Application = require("../models/Application.js");
 const Applicant = require("../models/Applicant.js");
+const User = require('../models/User.js')
 
 // GET request 
 // Getting all active Courses (Courses with max positions not filled(capacity>seats_filled))
@@ -53,23 +54,23 @@ router.get("/applications", authR, async (req, res) => {
         });
 });
 
-router.post("/updateStatus/:id/:stage", authR, async function(req, res) {
-    var user_id = req.params.id;
-    var stage = req.params.stage;
+router.put("/updateStatus", authR, async (req, res) => {
+    console.log("Route hit!")
+    console.log(req.body)
+    var appl_id = req.body.id;
+    var stage = req.body.stage;
     console.log(stage);
-    if (stage == "DocumentsVerified")
-    {
-        stage = "Documents Verified";
-    }
-    else if (stage == "FeesPaid")
-    {
-        stage = "Fees Paid";
-    }
-    const applicant = await Applicant.findOne({user_id: user_id});
-    console.log(applicant);
-    const application = await Application.findOne({appl_user_id: applicant._id});
+    // if (stage == "DocumentsVerified")
+    // {
+    //     stage = "Documents Verified";
+    // }
+    // else if (stage == "FeesPaid")
+    // {
+    //     stage = "Fees Paid";
+    // }
+    const application = await Application.findById(appl_id);
     console.log(application);
-    await Application.updateOne({_id: application._id}, {$set:{stage:stage}})
+    await Application.findByIdAndUpdate(appl_id, {$set:{stage:stage}})
         .then(appl => {
            res.status(200).json(appl);
         })
@@ -86,30 +87,52 @@ router.post("/updateStatus/:id/:stage", authR, async function(req, res) {
 // reject all other applications of that applicant, 
 //incr posn_filled of Course
 //(if now all positions have been filled then reject all applications for this Course)
-router.put("/accept/:id", authR, async function(req, res) {
-    var id = req.params.id;
-    const application = await Application.findOne({_id: id}).populate('email');
-    var email = application.email;
+router.put("/accept", authR, async function(req, res) {
+    var id = req.body.id;
+    const application = await Application.findById(id).populate('appl_user_id');
+    const user_id = application.appl_user_id.user_id;
+    var user = await User.findById(user_id);
+    var email = user.email;
     console.log(email)
-    const course = application.course_title;
-    await Application.updateOne({_id: application._id}, {$set:{stage:"Accepted"}})
-        .then(appl => {
-           res.status(200).json(appl);
-        })
+    const course_id = application.course_id;
+    try {
+        const appl = await Application.findByIdAndUpdate(id, { $set: { stage: "Accepted" } });
+    
+        if (!appl) {
+            return res.status(404).json({ message: "Application not found" });
+        }
+    
+        const course = await Course.findByIdAndUpdate(course_id, { $inc: { 'seats_filled': 1 } }, { new: true });
+    
+        if (!course) {
+            return res.status(404).json({ message: "Course not found" });
+        }
+    
+        if (course.seats_filled < course.capacity) {
+            res.status(200).json({ message: "Updated", application: appl, course });
+        } else {
+            res.status(400).json({ message: "Course capacity exceeded" });
+        }
+    
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+    
 
-        .catch(err => {
-            return res.status(400).send(err);
-        }) 
+    let mailDetails = { 
+        from: "VJTIlibrary@outlook.com", 
+        to: email, 
+        subject: 'Congratulations!', 
+        text: `You have been accepted into Veermata Jijabai Technological Institute`
+    }; 
 
-    await Course.findOneAndUpdate({course_title: course_title}, {$inc : {'seats_filled': 1}},{new:true})
-        .then(j => {
-            if(j.seats_filled<j.capacity){
-                return res.status(200).json({mess:"Updated"})
-            }
-        })
-        .catch(err=> {
-            return res.status(400).send(err);
-    });
+    transporter.sendMail(mailDetails, function(err, data) { 
+        if(err) { 
+            console.log(err); 
+        } else { 
+            console.log('Email sent successfully'); 
+        } 
+    }); 
 
     //reject all applications, return a message for Admin
     // if(c==0){
@@ -119,21 +142,6 @@ router.put("/accept/:id", authR, async function(req, res) {
     //         else res.status(200).json({mess:"All positions for this Course have been filled!"})
     //     })
     // }
-
-    let mailDetails = { 
-        from: "VJTIlibrary@outlook.com", 
-        to: email, 
-        subject: 'Congratulations!', 
-        text: `You have been accepted into Veermata Jijabai Technological Institute`
-    }; 
-
-    mailTransporter.sendMail(mailDetails, function(err, data) { 
-        if(err) { 
-            console.log(err); 
-        } else { 
-            console.log('Email sent successfully'); 
-        } 
-    }); 
 });
 
 // route: admin/newCourse    
