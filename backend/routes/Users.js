@@ -58,6 +58,14 @@ router.patch("/updateDetails", auth, (req, res)=> {
 // POST request 
 // Add a user to db
 router.post("/register", (req, res) => {
+    if (req.body.role == "Admin")
+    {
+        const vjtiEmailRegex = /^[a-zA-Z0-9._%+-]+@vjti\.ac\.in$/;
+        if (!vjtiEmailRegex.test(req.body.email))
+        {
+            return res.status(401).json({error: "Please enter your VJTI email id"});
+        }
+    }
     const newUser = new User(req.body);
     const email = req.body.email;
     console.log(newUser);
