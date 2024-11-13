@@ -72,6 +72,7 @@ class ApplDash extends Component {
         axios.get('http://localhost:5000/appl/applications', config)
              .then(response => {
               this.setState({applications: response.data});
+              console.log(typeof(this.state.applications[0].stage));
               })
               // console.log(response.data);
               // console.log(array)
@@ -242,9 +243,12 @@ class ApplDash extends Component {
                     type="range"
                     min="1"
                     max="5"
-                    value={this.state.allStatus.indexOf('status')+1}
+                    value={
+                      this.state.applications[0] 
+                          ? this.state.allStatus.indexOf(this.state.applications[0].stage) + 1
+                          : 1 // Default value if applications array is empty or undefined
+                  }
                     className="slider"
-                    onChange={(e) => this.onStatusDisplay()}
                   />
                   <div className="status-labels">
                     <span>Submitted</span>

@@ -486,29 +486,29 @@ class AdminApplView extends Component {
                                             {/* <TableCell>{a.appl_user_id.merit_no}</TableCell> */}
                                             <TableCell>{moment(a.date_of_appl).format('DD-MM-YYYY')}</TableCell> 
                                             <TableCell>
-                                              <Button onClick={(e)=>this.onViewSSC(a, e)}>View SSC Certificate</Button>
+                                              <Button variant="contained" color='primary' onClick={(e)=>this.onViewSSC(a, e)}>View SSC Certificate</Button>
                                             </TableCell>                
                                             <TableCell>
-                                              <Button onClick={(e)=>this.onViewHSC(a, e)}>View HSC Certificate</Button>
+                                              <Button variant="contained" color='primary' onClick={(e)=>this.onViewHSC(a, e)}>View HSC Certificate</Button>
                                             </TableCell>                 
                                             <TableCell>
-                                              <Button onClick={(e)=>this.onViewAadhar(a, e)}>View Aadhar Card</Button>
+                                              <Button variant="contained" color='primary' onClick={(e)=>this.onViewAadhar(a, e)}>View Aadhar Card</Button>
                                             </TableCell>                  
                                             <TableCell>
-                                              <Button onClick={(e)=>this.onViewCET(a, e)}>View CET Marksheet</Button>
+                                              <Button variant="contained" color='primary' onClick={(e)=>this.onViewCET(a, e)}>View CET Marksheet</Button>
                                             </TableCell>                 
                                             <TableCell>{a.stage}</TableCell>
                                             <TableCell>
-                                              <Button onClick={(e)=>this.onStatusChange(a, e, "Documents Verified")}>Status - Verify Documents</Button>
+                                              <Button variant="contained" color='primary' onClick={(e)=>this.onStatusChange(a, e, "Documents Verified")}>Status - Verify Documents</Button>
                                             </TableCell>  
                                             <TableCell>
-                                              <Button onClick={(e)=>this.onStatusChange(a, e, "Fees Paid")}>Status - Fees Paid</Button>
+                                              <Button variant="contained" color='primary' onClick={(e)=>this.onStatusChange(a, e, "Fees Paid")}>Status - Fees Paid</Button>
                                             </TableCell>  
                                             <TableCell>
-                                              <Button onClick={(e)=>this.onAccept(a,e)}>Accept Application</Button>
+                                              <Button variant="contained" color='primary' onClick={(e)=>this.onAccept(a,e)}>Accept Application</Button>
                                             </TableCell>  
                                             <TableCell>
-                                              <Button onClick={(e)=>this.onStatusChange(a, e, "Rejected")}>Reject Application</Button>
+                                              <Button variant="contained" color='primary' onClick={(e)=>this.onStatusChange(a, e, "Rejected")}>Reject Application</Button>
                                             </TableCell>  
                                           
 
