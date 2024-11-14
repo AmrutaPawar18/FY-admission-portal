@@ -446,82 +446,172 @@ class AdminApplView extends Component {
     // }
 
     render() {
-        return (
-            <div>
-            <AdminNavbar/>
-              <Grid container>
-                <Grid item xs={12} md={3} lg={3}>
-                    <List component="nav" aria-label="mailbox folders">
-                        <ListItem text>
-                                        <h3>Applications</h3>
-                        </ListItem>
-                    </List>
-                </Grid>
-                </Grid>
-                <Grid container>
-                    <Grid item xs={12}>
-                        <Paper>
-                            <Table>
-                                <TableHead>
-                                    <TableRow>
-                                            <TableCell>Applicant ID</TableCell>
-                                            {/* <TableCell>Merit Number</TableCell>                                     */}
-                                            <TableCell>Date of Application</TableCell>
-                                            <TableCell>SSC Certificate</TableCell>
-                                            <TableCell>HSC Certificate</TableCell>
-                                            <TableCell>Aadhar Card</TableCell>
-                                            <TableCell>CET Marksheet</TableCell>
-                                            <TableCell>Stage</TableCell>
-                                            <TableCell>Documents Verified</TableCell>
-                                            <TableCell>Fees Paid</TableCell>
-                                            <TableCell>Accept</TableCell>
-                                            <TableCell>Reject</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {this.state.applications.map((a,ind) => (
+      const styles = {
+        container: {
+            padding: '20px',
+            maxWidth: '100%',
+            overflowX: 'auto'
+        },
+        paper: {
+            width: '100%',
+            overflowX: 'auto',
+            marginTop: '20px'
+        },
+        tableContainer: {
+            minWidth: 1500, // Ensures table maintains minimum width for content
+        },
+        header: {
+            padding: '20px',
+            marginBottom: '20px'
+        }
+    };
 
-                                        <TableRow key={a._id}>
-                                            <TableCell>{a.appl_user_id}</TableCell>
-                                            {/* <TableCell>{a.appl_user_id.merit_no}</TableCell> */}
-                                            <TableCell>{moment(a.date_of_appl).format('DD-MM-YYYY')}</TableCell> 
-                                            <TableCell>
-                                              <Button variant="contained" color='primary' onClick={(e)=>this.onViewSSC(a, e)}>View SSC Certificate</Button>
-                                            </TableCell>                
-                                            <TableCell>
-                                              <Button variant="contained" color='primary' onClick={(e)=>this.onViewHSC(a, e)}>View HSC Certificate</Button>
-                                            </TableCell>                 
-                                            <TableCell>
-                                              <Button variant="contained" color='primary' onClick={(e)=>this.onViewAadhar(a, e)}>View Aadhar Card</Button>
-                                            </TableCell>                  
-                                            <TableCell>
-                                              <Button variant="contained" color='primary' onClick={(e)=>this.onViewCET(a, e)}>View CET Marksheet</Button>
-                                            </TableCell>                 
-                                            <TableCell>{a.stage}</TableCell>
-                                            <TableCell>
-                                              <Button variant="contained" color='primary' onClick={(e)=>this.onStatusChange(a, e, "Documents Verified")}>Status - Verify Documents</Button>
-                                            </TableCell>  
-                                            <TableCell>
-                                              <Button variant="contained" color='primary' onClick={(e)=>this.onStatusChange(a, e, "Fees Paid")}>Status - Fees Paid</Button>
-                                            </TableCell>  
-                                            <TableCell>
-                                              <Button variant="contained" color='primary' onClick={(e)=>this.onAccept(a,e)}>Accept Application</Button>
-                                            </TableCell>  
-                                            <TableCell>
-                                              <Button variant="contained" color='primary' onClick={(e)=>this.onStatusChange(a, e, "Rejected")}>Reject Application</Button>
-                                            </TableCell>  
+//         return (
+//             <div>
+//             <AdminNavbar/>
+//               <Grid container>
+//                 <Grid item xs={12} md={3} lg={3}>
+//                     <List component="nav" aria-label="mailbox folders">
+//                         <ListItem text>
+//                                         <h3>Applications</h3>
+//                         </ListItem>
+//                     </List>
+//                 </Grid>
+//                 </Grid>
+//                 <Grid container>
+//                     <Grid item xs={12} md={40} lg={30}>
+//                         <Paper>
+//                             <Table>
+//                                 <TableHead>
+//                                     <TableRow>
+//                                             <TableCell>Applicant ID</TableCell>
+//                                             {/* <TableCell>Merit Number</TableCell>                                     */}
+//                                             <TableCell>Date of Application</TableCell>
+//                                             <TableCell>SSC Certificate</TableCell>
+//                                             <TableCell>HSC Certificate</TableCell>
+//                                             <TableCell>Aadhar Card</TableCell>
+//                                             <TableCell>CET Marksheet</TableCell>
+//                                             <TableCell>Stage</TableCell>
+//                                             <TableCell>Documents Verified</TableCell>
+//                                             <TableCell>Fees Paid</TableCell>
+//                                             <TableCell>Accept</TableCell>
+//                                             <TableCell>Reject</TableCell>
+//                                     </TableRow>
+//                                 </TableHead>
+//                                 <TableBody>
+//                                     {this.state.applications.map((a,ind) => (
+
+//                                         <TableRow key={a._id}>
+//                                             <TableCell>{a.appl_user_id}</TableCell>
+//                                             {/* <TableCell>{a.appl_user_id.merit_no}</TableCell> */}
+//                                             <TableCell>{moment(a.date_of_appl).format('DD-MM-YYYY')}</TableCell> 
+//                                             <TableCell>
+//                                               <Button variant="contained" color='primary' onClick={(e)=>this.onViewSSC(a, e)}>View SSC Certificate</Button>
+//                                             </TableCell>                
+//                                             <TableCell>
+//                                               <Button variant="contained" color='primary' onClick={(e)=>this.onViewHSC(a, e)}>View HSC Certificate</Button>
+//                                             </TableCell>                 
+//                                             <TableCell>
+//                                               <Button variant="contained" color='primary' onClick={(e)=>this.onViewAadhar(a, e)}>View Aadhar Card</Button>
+//                                             </TableCell>                  
+//                                             <TableCell>
+//                                               <Button variant="contained" color='primary' onClick={(e)=>this.onViewCET(a, e)}>View CET Marksheet</Button>
+//                                             </TableCell>                 
+//                                             <TableCell>{a.stage}</TableCell>
+//                                             <TableCell>
+//                                               <Button variant="contained" color='primary' onClick={(e)=>this.onStatusChange(a, e, "Documents Verified")}>Status - Verify Documents</Button>
+//                                             </TableCell>  
+//                                             <TableCell>
+//                                               <Button variant="contained" color='primary' onClick={(e)=>this.onStatusChange(a, e, "Fees Paid")}>Status - Fees Paid</Button>
+//                                             </TableCell>  
+//                                             <TableCell>
+//                                               <Button variant="contained" color='primary' onClick={(e)=>this.onAccept(a,e)}>Accept Application</Button>
+//                                             </TableCell>  
+//                                             <TableCell>
+//                                               <Button variant="contained" color='primary' onClick={(e)=>this.onStatusChange(a, e, "Rejected")}>Reject Application</Button>
+//                                             </TableCell>  
                                           
 
-                                        </TableRow>
-                                ))}
-                                </TableBody>
-                            </Table>
-                        </Paper>               
-                    </Grid>    
-                </Grid>            
-            </div>
-        )
-    }
+//                                         </TableRow>
+//                                 ))}
+//                                 </TableBody>
+//                             </Table>
+//                         </Paper>               
+//                     </Grid>    
+//                 </Grid>            
+//             </div>
+//         )
+//     }
+// }
+
+// export default AdminApplView;
+
+return (
+  <div>
+      <AdminNavbar/>
+      <div style={styles.container}>
+          <div style={styles.header}>
+              <Typography variant="h5">Applications</Typography>
+          </div>
+          
+          <Paper style={styles.paper}>
+              <div style={styles.tableContainer}>
+                  <Table>
+                      <TableHead>
+                          <TableRow>
+                              <TableCell>Applicant ID</TableCell>
+                              <TableCell>Date of Application</TableCell>
+                              <TableCell>SSC Certificate</TableCell>
+                              <TableCell>HSC Certificate</TableCell>
+                              <TableCell>Aadhar Card</TableCell>
+                              <TableCell>CET Marksheet</TableCell>
+                              <TableCell>Stage</TableCell>
+                              <TableCell>Documents Verified</TableCell>
+                              <TableCell>Fees Paid</TableCell>
+                              <TableCell>Accept</TableCell>
+                              <TableCell>Reject</TableCell>
+                          </TableRow>
+                      </TableHead>
+                      <TableBody>
+                          {this.state.applications.map((a,ind) => (
+                              <TableRow key={a._id}>
+                                  <TableCell>{a.appl_user_id}</TableCell>
+                                  <TableCell>{moment(a.date_of_appl).format('DD-MM-YYYY')}</TableCell>
+                                  <TableCell>
+                                      <Button variant="contained" color='primary' onClick={(e)=>this.onViewSSC(a, e)}>View SSC Certificate</Button>
+                                  </TableCell>
+                                  <TableCell>
+                                      <Button variant="contained" color='primary' onClick={(e)=>this.onViewHSC(a, e)}>View HSC Certificate</Button>
+                                  </TableCell>
+                                  <TableCell>
+                                      <Button variant="contained" color='primary' onClick={(e)=>this.onViewAadhar(a, e)}>View Aadhar Card</Button>
+                                  </TableCell>
+                                  <TableCell>
+                                      <Button variant="contained" color='primary' onClick={(e)=>this.onViewCET(a, e)}>View CET Marksheet</Button>
+                                  </TableCell>
+                                  <TableCell>{a.stage}</TableCell>
+                                  <TableCell>
+                                      <Button variant="contained" color='primary' onClick={(e)=>this.onStatusChange(a, e, "Documents Verified")}>Status - Verify Documents</Button>
+                                  </TableCell>
+                                  <TableCell>
+                                      <Button variant="contained" color='primary' onClick={(e)=>this.onStatusChange(a, e, "Fees Paid")}>Status - Fees Paid</Button>
+                                  </TableCell>
+                                  <TableCell>
+                                      <Button variant="contained" color='primary' onClick={(e)=>this.onAccept(a,e)}>Accept Application</Button>
+                                  </TableCell>
+                                  <TableCell>
+                                      <Button variant="contained" color='primary' onClick={(e)=>this.onStatusChange(a, e, "Rejected")}>Reject Application</Button>
+                                  </TableCell>
+                              </TableRow>
+                          ))}
+                      </TableBody>
+                  </Table>
+              </div>
+          </Paper>
+      </div>
+  </div>
+);
+}
 }
 
 export default AdminApplView;
